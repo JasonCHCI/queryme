@@ -1,7 +1,7 @@
 # Query Me
 This project is a sql query program through command line
 
-##Getting started
+## Get started
 ###### Prerequisites
 Make sure you already install python version 2.7 and install pip
 ###### Installing
