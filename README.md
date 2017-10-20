@@ -2,15 +2,15 @@
 This project is a sql query program through command line
 
 ## Get started
-###### Prerequisites
+### Prerequisites
 Make sure you already install python version 2.7 and install pip
-###### Installing
+### Installing
 run commands below on terminal
 ```
 sudo pip install sqlparse
 sudo pip install pandas
 ```
-###### Clone
+### Clone
 go the directory you prefer and clone this project, similar to track1
 ```
 $ git clone https://github.com/JasonCHCI/queryme.git
@@ -23,3 +23,9 @@ $ git pull
 To contribute:
 `follow track1`
 
+To run script:
+main.py -i <inputfile> [other option] [SELECT_statement]
+Example:
+```
+$ main.py -i student.csv 'select * from student'
+```
