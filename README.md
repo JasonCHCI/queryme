@@ -23,9 +23,9 @@ $ git pull
 To contribute:
 `follow track1`
 
-To run script:
-main.py -i <inputfile> [other option] [SELECT_statement]
-Example:
+To run script:_
+main.py -i <inputfile> [other option] [SELECT_statement]_
+Example:_
 ```
 $ main.py -i student.csv 'select * from student'
 ```
