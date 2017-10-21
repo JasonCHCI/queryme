@@ -10,8 +10,14 @@ def checkSchema(filename):
 	return
 
 # TO DO: check if statement is correct format: SELECT A1,A2,... FROM R1,R2... WHERE C1 AND C2 AND ...
-def checkStatemet(statement):
-	return
+def checkStatement(statement):
+	tokens = statement.split()
+	if any(keyWord not in tokens for keyWord in ('SELECT', 'FROM', 'WHERE')):
+		return False
+	if (tokens.index('SELECT') < tokens.index('FROM') - 1) and (tokens.index('FROM') < tokens.index('WHERE') - 1) and (tokens.index('WHERE') < len(tokens) - 1):
+		print True;
+	else:
+		print False;
 
 # TO DO: check if all attributes, relations/tables exist
 def checkExist(statement,filename):
