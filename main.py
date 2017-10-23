@@ -3,7 +3,8 @@ import sqlparse
 from pandas import *
 from os.path import *
 from copy import *
-from function import *
+from interpreter import *
+from do_query import *
 
 #def parse(arg):
 
@@ -60,7 +61,9 @@ if __name__=="__main__":
 		for file in files:
 			df = read_csv(file,parse_dates=True)
 			tables[splitext(file)[0]]=file
-			schemas[splitext(file)[0]]=list(df)
+			schemas[splitext(file)[0]]={}
+			for col in df.columns:
+				schemas[splitext(file)[0]][col]=df[col].dtype
         	if len(df.columns)>300:
         		print 70*"-"
         		print "| The schema of a table should be a set of up to 300 attributes. "
@@ -94,11 +97,16 @@ if __name__=="__main__":
         	print "| This table doesn't exist. "
         	print 70*"-"
         	sys.exit()
+        if exist==4:
+        	print 70*"-"
+        	print "| This attribute's name is duplicate. "
+        	print 70*"-"
+        	sys.exit()
+        #print attrs,relations,conds
+        #print tables,schemas
+        #print isinstance(1==2,bool)
+        print checkConditions(conds,tables,schemas)
 
-        print attrs,relations,conds
-        print tables,schemas
-        print isinstance(1==2,bool)
-        #print checkConditions(conds,tables,schemas)
 
 
 
