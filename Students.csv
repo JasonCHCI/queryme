@@ -1,5 +1,5 @@
 id,name,major,birthday,female
-1,Bugs Bunny,CS,11/6/04,TRUE
-2,Donald Duck,ECE,2/1/97,FALSE
-3,Peter Pan,SS,10/1/98,TRUE
-4,Mickey Mouse,Music,4/1/95,FALSE
+1,Bugs Bunny,CS,11/06/04,TRUE
+2,Donald Duck,ECE,02/01/97,FALSE
+3,Peter Pan,SS,10/01/98,TRUE
+4,Mickey Mouse,Music,04/01/95,FALSE

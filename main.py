@@ -64,6 +64,7 @@ if __name__=="__main__":
 			schemas[splitext(file)[0]]={}
 			for col in df.columns:
 				schemas[splitext(file)[0]][col]=df[col].dtype
+				#print df[col].dtype
         	if len(df.columns)>300:
         		print 70*"-"
         		print "| The schema of a table should be a set of up to 300 attributes. "
@@ -76,7 +77,7 @@ if __name__=="__main__":
         if not goodstm:
         	print 70*"-"
         	print "| Please input a query statemetn with legal format. "
-        	print '| Format: "SELECT A1,A2,... FROM R1,R2... WHERE C1 AND C2 AND ..."'
+        	print '| Format: "SELECT A1,A2,... FROM R1,R2... [WHERE C1 AND C2 AND ...]"'
         	print 70*"-"
         	sys.exit()
 
@@ -105,10 +106,11 @@ if __name__=="__main__":
         #print attrs,relations,conds
         #print tables,schemas
         #print isinstance(1==2,bool)
-        print checkConditions(conds,tables,schemas)
-
-
-
+        if goodstm and conds<>'' and not checkConditions(conds,tables,schemas):
+        	print 70*"-"
+        	print "| This conditions are illegal. "
+        	print 70*"-"
+        	sys.exit()
 
 
 

@@ -7,14 +7,17 @@ import ast
 # check if statement is correct format: SELECT A1,A2,... FROM R1,R2... WHERE C1 AND C2 AND ...
 def checkStatement(statement):
     tokens = statement.split()
-    if all(tokens.count(keyWord)==1 for keyWord in ('SELECT', 'FROM', 'WHERE')):
+    if all(tokens.count(keyWord)==1 for keyWord in ('SELECT', 'FROM')):
         iselect = tokens.index('SELECT')
         ifrom = tokens.index('FROM')
-        iwhere = tokens.index('WHERE')
-        if iselect<ifrom-1 and ifrom<iwhere-1 and iwhere<len(tokens)-1:
-            return True, ''.join(tokens[iselect+1:ifrom]),''.join(tokens[ifrom+1:iwhere]),statement.split('WHERE ',1)[1]
-    else:
-        return False,'','',''
+        if tokens.count('WHERE')==1:
+        	iwhere = tokens.index('WHERE')
+        	if iselect<ifrom-1 and ifrom<iwhere-1 and iwhere<len(tokens)-1:
+        		return True, ''.join(tokens[iselect+1:ifrom]),''.join(tokens[ifrom+1:iwhere]),statement.split('WHERE ',1)[1]
+        else:
+        	if iselect<ifrom-1:
+        		return True, ''.join(tokens[iselect+1:ifrom]),''.join(tokens[ifrom+1:]),''
+    return False,'','',''
 
 # check if all attributes, relations/tables exist
 def checkExist(attributes,relations,tables,schemas):
@@ -95,22 +98,16 @@ def checkConditions(conditions,tables,schemas):
                     if b in schemas[table]:
                         typeB = schemas[table][b]
 
-            if operator =="LIKE" and not checkLIKE(b) or not typeA==np.object:
-                return False
-            if operator <>"LIKE":
-                if typeB<>None and typeB<>typeA:
-                    return False
-                if typeB==None:
-
-                    #print ast.literal_eval("asd")
-                    typeB =  np.array(b).dtype
-
-                    print "s"
-            
+            if operator =="LIKE":
+             	if not typeA==np.object:
+                	return False
+                if (not '%' in b) or (not '_' in b):
+                	return False
+            if operator <>"LIKE" and  typeB<>None and typeB<>typeA:
+                 return False
+            #if typeB==None:
     return True
 
-def checkLIKE(b):
-    return True
 
 
 
