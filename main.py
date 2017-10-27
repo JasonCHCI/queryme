@@ -5,7 +5,7 @@ from os.path import *
 from copy import *
 from interpreter import *
 from do_query import *
-
+from multiprocessing import Process,Manager
 #def parse(arg):
 
 def main(argv):
@@ -36,6 +36,7 @@ if __name__=="__main__":
 	files,args = main(sys.argv[1:])
 	tables ={}
 	schemas ={}
+	dataframes=[]
 	if any(not isfile(file) for file in files):
 		print 70*"-"
 		print "| The file does not exist. Please input correct one."
@@ -62,6 +63,7 @@ if __name__=="__main__":
 			df = read_csv(file,parse_dates=True)
 			tables[splitext(file)[0]]=file
 			schemas[splitext(file)[0]]={}
+			dataframes.append(df)
 			for col in df.columns:
 				schemas[splitext(file)[0]][col]=df[col].dtype
 				#print df[col].dtype
@@ -113,7 +115,12 @@ if __name__=="__main__":
         	sys.exit()
 
 
-
+        #p = Process(target=doWHERE,args=(relations,dataframes))
+        #p.start()
+        #print p
+        frame = doWHERE(relations,dataframes)
+        print frame.columns
+        print frame
 
 
 
