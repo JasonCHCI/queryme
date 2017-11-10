@@ -163,7 +163,15 @@ def checkConditions(conditions,tables,schemas,panel):
 
 
 
-
+def createIndex(query,panel,relations):
+	for i in range(len(query)):
+		cond = query[i].split()
+		if cond[0] in ('AND','OR','NOT'):
+			continue
+        else:
+             tableA, attrA = cond[0].split('.')
+             df = panel[tableA]
+             df.set_index(attrA, inplace = True)
 
 
 
