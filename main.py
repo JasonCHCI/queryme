@@ -131,6 +131,7 @@ if __name__=="__main__":
         	print 70*"-"
         	sys.exit()
 
+        createIndex(query,panel, relations)
 
         # attrs: attributes in SELECT clause
         # relations: tables name in FROM clause

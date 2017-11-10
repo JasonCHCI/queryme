@@ -27,5 +27,5 @@ To run script: <br />
 main.py -i <\inputfile> [other option] [SELECT_statement] <br />
 Example: 
 ```
-$ python main.py -i student.csv 'select * from student'
+$ python main.py -i students.csv "SELECT * FROM students"
 ```
