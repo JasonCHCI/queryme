@@ -25,9 +25,10 @@ def doFROM(dfs):
 # WHERE clause does the cartesian product of all relations
 def doWHERE(query,panel,relations):
 	dfPre = None
+	df = None
 	for i in range(len(query)):
 		cond = query[i].split()
-		if cond in ('AND','OR','NOT'):
+		if cond[0] in ('AND','OR','NOT'):
 			continue
 		elif len(cond)==1:
 			tableA,attrA = cond[0].split('.')
@@ -74,8 +75,11 @@ def doWHERE(query,panel,relations):
 					#df = dfA.query('id == @dfB.id')
 					print df
 		#print panel
-		if dfPre==None:
-			dfPre=df
+		if dfPre is None:
+			if df is None:
+				print "Not result"
+			else:
+				dfPre=df
 		else:
 			if i-1>=0 and query[i-1]=='AND':
 				#intersect dfPre and df
@@ -93,7 +97,7 @@ def doWHERE(query,panel,relations):
 def doLIKE(df,b,attA):
 	if b[-1]=='%' and b[0]=='%':
 		df = df[df[attA].str.contains(b[1:-1])]
-	elif [-1]<>'%' and b[0]<>'%' and '%' in b:
+	elif b[-1]<>'%' and b[0]<>'%' and '%' in b:
 		split = b.split('%')
 		df = df[df[attA].str.startswith(split[0])]
 		df = df[df[attA].str.endswith(split[-1])]

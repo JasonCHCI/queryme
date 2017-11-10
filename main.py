@@ -92,7 +92,7 @@ if __name__=="__main__":
         # relations: tables name in FROM clause
         # conds: conditions in WHERE clause
         goodstm,attrs,relations,conds = checkStatement(stm)
-
+        
         if not goodstm:
         	print 70*"-"
         	print "| Please input a query statemetn with legal format. "
