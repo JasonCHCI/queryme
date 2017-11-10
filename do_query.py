@@ -29,6 +29,7 @@ def doWHERE(query,panel,relations):
 		cond = query[i].split()
 		if cond in ('AND','OR','NOT'):
 			continue
+		# 	handle boolean attribute
 		elif len(cond)==1:
 			tableA,attrA = cond[0].split('.')
 			df = panel[tableA]

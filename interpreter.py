@@ -1,4 +1,4 @@
-import sqlparse 
+import sqlparse
 from pandas import *
 import numpy as np
 from do_query import *
@@ -29,7 +29,7 @@ def checkExist(attributes,relations,tables,schemas):
         for a in attributes:
             att=a.split('.')
             if len(att)>2: return 0
-            elif len(att)==2: 
+            elif len(att)==2:
                 if att[1] not in schemas[att[0]]: return 1
                 else: continue
             else:
@@ -40,7 +40,7 @@ def checkExist(attributes,relations,tables,schemas):
         return 5
     else:
         return 3
-    
+
 
 # Conditions should be like A<OP>B, A is an attribute and B can be attribute or value
 # <OP> is one of =, >, <, <>, >= and <= when A and B are all data types except Boolean
@@ -59,11 +59,11 @@ def checkConditions(conditions,tables,schemas,panel):
         # If condition is 'A <op> B', then split condition 'A <op> B' to [A,B], and operator = <op>
         for i in ('<>','>=','<=','=','>','<','LIKE'):
             if i in tempc:
-                operator = i 
+                operator = i
                 tokens = tempc.split(i)#split condition 'A <op> B' to [A,B]
                 break
         # If condition is single boolean attribute, test if the attribute exist and if it is boolean value
-        else: 
+        else:
             a = cond.split('.')
             if len(a)==2 and schemas[a[0]] and a[1] in schemas[a[0]] and schemas[a[0]][a[1]]==np.bool:
             	statement.append(a[0]+'.'+a[1])
@@ -87,7 +87,7 @@ def checkConditions(conditions,tables,schemas,panel):
             typeA = None
             typeB = None
             tableA,tableB,attA,attB,valueB= '','','','',None
-            a = tokens[0].split('.')# attribute A may be 'table.att' or atomic 'att' 
+            a = tokens[0].split('.')# attribute A may be 'table.att' or atomic 'att'
             b = tokens[1].split('.')# attribute B may be 'table.att' or atomic 'att' or single value
             # if A is relation.attribute,find data type.Otherwise return
             if len(a)==2 and schemas[a[0]] and a[1] in schemas[a[0]]:
@@ -104,7 +104,7 @@ def checkConditions(conditions,tables,schemas,panel):
                         typeA = schemas[table][a]
                         tableA= table
                         attA = a
-                if typeA==None or count<>1: 
+                if typeA==None or count<>1:
                 	#print "attribute ambiguous"
                 	return False,[]
             else:
@@ -146,7 +146,7 @@ def checkConditions(conditions,tables,schemas,panel):
             # If <op> is in '<>','>=','<=','=','>','<' and A and B have the same datatype except Boolean,
             # then we do query
             if operator <>"LIKE":
-            	if operator=='=': 
+            	if operator=='=':
             		operator='=='
             	if typeB==typeA and typeA<>np.bool:
             		if valueB==None:
@@ -156,8 +156,19 @@ def checkConditions(conditions,tables,schemas,panel):
 
                 else:
                 	return False,[]
-
+    print "------test------"
+    print statement
     return True,statement
+
+def createIndex(query,panel,relations):
+	for i in range(len(query)):
+		cond = query[i].split()
+		if cond[0] in ('AND','OR','NOT'):
+			continue
+        else:
+            tableA, attrA = cond[0].split('.')
+            df = panel[tableA]
+            df.set_index(attrA, inplace = True)
 
 
 
