@@ -23,18 +23,17 @@ $ git pull
 To contribute:
 `follow track1`
 
-To run script: <br />
+To run script:
 ```
 $ main.py -i <\inputfile1> [-i <\inputfile2>] [-i <\inputfile3>]
 ```
-<br />
+
 When you see "Input a query or input exit:", please input a query statement or type 'exit' to exit: <br />
-```
-$ SELECT * FROM students [WHERE id=1]
-$ exit
-```
-<br />
+
+$ SELECT * FROM students [WHERE id=1] <br />
+$ exit<br />
+
 Example: <br />
-```
+
 $ python main.py -i students.csv "SELECT * FROM students"
-```
+
