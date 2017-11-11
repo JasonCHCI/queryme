@@ -15,7 +15,7 @@ go the directory you prefer and clone this project, similar to track1
 ```
 $ git clone https://github.com/JasonCHCI/queryme.git
 ```
-To update
+To update:
 ```
 $ git checkout master
 $ git pull
@@ -24,7 +24,17 @@ To contribute:
 `follow track1`
 
 To run script: <br />
-main.py -i <\inputfile> [other option] [SELECT_statement] <br />
+```
+$ main.py -i <\inputfile1> [-i <\inputfile2>] [-i <\inputfile3>]
+```
+<br />
+When you see "Input a query or input exit:", please input a query statement or type 'exit' to exit:
+<br />
+```
+$ SELECT * FROM students [WHERE id=1]
+$ exit
+```
+<br />
 Example: 
 ```
 $ python main.py -i students.csv "SELECT * FROM students"```
