@@ -26,19 +26,25 @@ def doFROM(dfs):
 def doWHERE(query,panel,relations):
 	dfPre = None
 	df = None
+	tables = []
 	for i in range(len(query)):
 		cond = query[i].split()
 		if cond[0] in ('AND','OR','NOT'):
 			continue
-		# 	handle boolean attribute
 		elif len(cond)==1:
 			tableA,attrA = cond[0].split('.')
+			table = [t for t in tables if tableA in t]
+			if table: tableA=table[0]
+			else: tables.append(tableA)
 			df = panel[tableA]
 			df = df[df[attrA]]
 			panel[tableA]=df
 			print df
 		elif len(cond)==3:
 			tableA,attrA = cond[0].split('.')
+			table = [t for t in tables if tableA in t]
+			if table: tableA=table[0]
+			else: tables.append(tableA)
 			tableB,attrB,valueB = None,None,None
 			op = cond[1]
 			tempB = cond[2].split('.')
@@ -50,6 +56,9 @@ def doWHERE(query,panel,relations):
 			else:
 				if len(tempB)==2:
 					tableB,attrB = tempB
+					table = [t for t in tables if tableB in t]
+					if table: tableB=table[0]
+					else: tables.append(tableB)
 				else:
 					valueB = tempB[0]
 				# If A is attribute and B is value
@@ -62,7 +71,7 @@ def doWHERE(query,panel,relations):
 				# If A and B are all attribute and at the same table
 				elif tableA==tableB:
 					df = panel[tableA]
-					stm = attrA+operator+attrB
+					stm = attrA+op+attrB
 					df = df.query(stm)
 					panel[tableA]=df
 					print df
