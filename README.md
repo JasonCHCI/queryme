@@ -37,4 +37,5 @@ $ exit
 <br />
 Example: 
 ```
-$ python main.py -i students.csv "SELECT * FROM students"```
+$ python main.py -i students.csv "SELECT * FROM students"
+```
