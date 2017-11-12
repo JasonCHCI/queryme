@@ -105,21 +105,24 @@ def doWHERE(query,panel,relations):
 
 # TO DO: '_' represents a single character space
 def doLIKE(df,b,attA):
-	if b[-1]=='%' and b[0]=='%':
-		df = df[df[attA].str.contains(b[1:-1])]
-	elif b[-1]<>'%' and b[0]<>'%' and '%' in b:
-		split = b.split('%')
-		df = df[df[attA].str.startswith(split[0])]
-		df = df[df[attA].str.endswith(split[-1])]
-		if len(split)==3:
-			df = df[df[attA].str.contains(split[1])]
-	elif b[-1]=='%':
-		df = df[df[attA].str.startswith(b[:-1])]
-	elif b[0]=='%':
-		df = df[df[attA].str.endswith(b[1:])]
-	else:
-		df = df[df[attA]==b]
-	return df
+
+    dp = [[False] * (len(b) + 1) for _ in range(len(attA) + 1)]
+    dp[0][0] = True
+    for i in range(1, len(attA)):
+        dp[i + 1][0] = dp[i - 1][0] and p[i] == '%'
+    for i in range(len(attA)):
+        for j in range(len(b)):
+            if p[i] == '%':
+                dp[i + 1][j + 1] = dp[i - 1][j + 1] or dp[i][j + 1]
+                if p[i - 1] == b[j] or p[i - 1] == '_':
+                    dp[i + 1][j + 1] |= dp[i + 1][j]
+            else:
+                dp[i + 1][j + 1] = dp[i][j] and (p[i] == b[j] or p[i] == '_')
+    return dp[-1][-1]
+
+
+
+
 
 
 
