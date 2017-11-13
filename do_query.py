@@ -104,23 +104,23 @@ def doWHERE(query,panel,relations):
 
 
 
-
 # TO DO: '_' represents a single character space
 
 
-    hash = None
+hash = None
 
 def doLIKE(df,b,attA):
-     if df.hash is None:
-            df.hash = {}
+    if df.hash is None:
+        df.hash = {}
         key = b + attA
         if key in df.hash:
-           if  df.hash[key]:
-            return df
-            else return None
+            if df.hash[key]:
+                return df
+            else：
+                return None
 
         if attA == '':
-            if b == ''
+            if b == ''：
                 return df
         if b == '':
             if len(attA) % 2 == 1:
@@ -130,46 +130,46 @@ def doLIKE(df,b,attA):
                 if attA[i] != '%':
                     return None
                 i += 2
-                df＝df[df[attA].str.contains(split[1])]
-
+                df ＝ df[df[attA].str.contains(split[1])]
 
 
         if len(attA) > 1 and attA[1] == '%':
             if attA[0] == '_':
-               if df.isMatch(b[1:], attA):
-                df=df[df[attA].str.contains(b[1:])]
-               if df.isMatch(b, attA[2:]):
-                df=df[df[attA].str.contains(b[2:])]
-                else df=None
+                if df.isMatch(b[1:], attA):
+                    df = df[df[attA].str.contains(b[1:])]
+                if df.isMatch(b, attA[2:]):
+                    df = df[df[attA].str.contains(b[2:])]
+                else：
+                    df = None
              
             elif attA[0] == b[0]:
                 if df.isMatch(b[1:], attA):
-                    df=df[df[attA].str.contains(b[1:])]
+                    f = df[df[attA].str.contains(b[1:])]
                 if df.ibMatch(b, attA[2:]):
-                    df=df[df[attA].str.contains(attA[2:])]
-                    else  df=None  
+                    df = df[df[attA].str.contains(attA[2:])]
+                else：
+                    df = None  
           
-
             else:
-                if df.isMatch(b, attA[2:])==1:
-                df=df[df[attA].str.contains(attA[2:])]
-                else df=None  
+                if df.isMatch(b, attA[2:]) == 1:
+                    df = df[df[attA].str.contains(attA[2:])]
+                else： 
+                    df = None  
                 
                 
         elif attA[0] == '_':
             if df.isMatch(b[1:], attA[1:]):
-            df=df[df[attA].str.contains(attA[1:])]
-             else df=None  
+                df = df[df[attA].str.contains(attA[1:])]
+            else：
+                df = None  
             
 
         else:
             if (b[0] == attA[0] and df.isMatch(b[1:], attA[1:])==1):
-             df=df[df[attA].str.contains(attA[1:])]
-             else df=None  
+                df = df[df[attA].str.contains(attA[1:])]
+            else：
+                df = None  
         return df
-
-
-
 
 
 
@@ -190,6 +190,8 @@ def doLIKE(df,b,attA):
                         dp[i][j] = dp[i - 1][j - 1]
 
         return dp[len(s)][len(p)]
+
+
 
 
 
