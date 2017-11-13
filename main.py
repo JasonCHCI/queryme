@@ -149,7 +149,7 @@ if __name__=="__main__":
                 print 70*"-"
                 sys.exit()
 
-            createIndex(query,panel, relations)
+            # createIndex(query,panel, relations)
 
             print "---------------------------------------------"
             print "| Querying..."
