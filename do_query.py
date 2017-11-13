@@ -106,21 +106,91 @@ def doWHERE(query,panel,relations):
 
 
 # TO DO: '_' represents a single character space
-def doLIKE(df,b,attA):
 
-    dp = [[False] * (len(b) + 1) for _ in range(len(attA) + 1)]
-    dp[0][0] = True
-    for i in range(1, len(attA)):
-        dp[i + 1][0] = dp[i - 1][0] and p[i] == '%'
-    for i in range(len(attA)):
-        for j in range(len(b)):
-            if p[i] == '%':
-                dp[i + 1][j + 1] = dp[i - 1][j + 1] or dp[i][j + 1]
-                if p[i - 1] == b[j] or p[i - 1] == '_':
-                    dp[i + 1][j + 1] |= dp[i + 1][j]
+
+    hash = None
+
+def doLIKE(df,b,attA):
+     if df.hash is None:
+            df.hash = {}
+        key = b + attA
+        if key in df.hash:
+           if  df.hash[key]:
+            return df
+            else return None
+
+        if attA == '':
+            if b == ''
+                return df
+        if b == '':
+            if len(attA) % 2 == 1:
+                return None
+            i = 1
+            while i < len(attA):
+                if attA[i] != '%':
+                    return None
+                i += 2
+                df＝df[df[attA].str.contains(split[1])]
+
+
+
+        if len(attA) > 1 and attA[1] == '%':
+            if attA[0] == '_':
+               if df.isMatch(b[1:], attA):
+                df=df[df[attA].str.contains(b[1:])]
+               if df.isMatch(b, attA[2:]):
+                df=df[df[attA].str.contains(b[2:])]
+                else df=None
+             
+            elif attA[0] == b[0]:
+                if df.isMatch(b[1:], attA):
+                    df=df[df[attA].str.contains(b[1:])]
+                if df.ibMatch(b, attA[2:]):
+                    df=df[df[attA].str.contains(attA[2:])]
+                    else  df=None  
+          
+
             else:
-                dp[i + 1][j + 1] = dp[i][j] and (p[i] == b[j] or p[i] == '_')
-    return dp[-1][-1]
+                if df.isMatch(b, attA[2:])==1:
+                df=df[df[attA].str.contains(attA[2:])]
+                else df=None  
+                
+                
+        elif attA[0] == '_':
+            if df.isMatch(b[1:], attA[1:]):
+            df=df[df[attA].str.contains(attA[1:])]
+             else df=None  
+            
+
+        else:
+            if (b[0] == attA[0] and df.isMatch(b[1:], attA[1:])==1):
+             df=df[df[attA].str.contains(attA[1:])]
+             else df=None  
+        return df
+
+
+
+
+
+
+    bool  isMatch(self, s, p):
+        dp = [[False for i in range(0,len(p) + 1)] for j in range(0, len(s) + 1)]
+        dp[0][0] = True
+        for i in range(1, len(p) + 1):
+            if (p[i - 1] == '%'):
+                dp[0][i] = dp[0][i - 2]
+        for i in range(1, len(s) + 1):
+            for j in range(1, len(p) + 1):
+                if p[j - 1] == '%':
+                    dp[i][j] = dp[i][j - 2]
+                    if s[i - 1] == p[j - 2] or p[j - 2] == '_':
+                        dp[i][j] |= dp[i-1][j]
+                else:
+                    if s[i - 1] == p[j - 1] or p[j - 1] == '_':
+                        dp[i][j] = dp[i - 1][j - 1]
+
+        return dp[len(s)][len(p)]
+
 
 
 
