@@ -58,7 +58,7 @@ def doWHERE(query, panel, relations):
             if op == 'LIKE':
                 df = panel["final"]
                 df = doLIKE(df, tempB[0], attrA)
-                # panel["final"]=df
+                panel["final"] = df
                 print df
             else:
                 if len(tempB) == 2:
@@ -75,14 +75,14 @@ def doWHERE(query, panel, relations):
                     df = panel["final"]
                     stm = attrA + op + str(valueB)
                     df = df.query(stm)
-                    # panel["final"]=df
+                    panel["final"] = df
                     print df
                 # If A and B are all attribute and at the same table
                 elif tableA == tableB:
                     df = panel["final"]
                     stm = attrA + op + attrB
                     df = df.query(stm)
-                    # panel["final"]=df
+                    panel["final"] = df
                     print df
                 # If A and B are all attribute and at different tables
                 elif tableB <> None and tableA <> tableB:
@@ -109,10 +109,6 @@ def doWHERE(query, panel, relations):
                 # union dfPre and df
                 pass
         print cond
-
-
-# TO DO: '_' represents a single character space
-
 
 
 def doLIKE(df, b, attA):
