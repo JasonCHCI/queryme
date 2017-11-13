@@ -133,6 +133,7 @@ def doLIKE(df,b,attA):
                 df ＝ df[df[attA].str.contains(split[1])]
 
 
+
         if len(attA) > 1 and attA[1] == '%':
             if attA[0] == '_':
                 if df.isMatch(b[1:], attA):
