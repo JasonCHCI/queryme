@@ -36,7 +36,7 @@ def doWHERE(query,panel,relations):
 			table = [t for t in tables if tableA in t]
 			if table: tableA=table[0]
 			else: tables.append(tableA)
-			df = panel["final"]
+			df = panel[tableA]
 			df = df[df[attrA]]
 			panel[tableA]=df
 			print df
@@ -49,9 +49,9 @@ def doWHERE(query,panel,relations):
 			op = cond[1]
 			tempB = cond[2].split('.')
 			if op=='LIKE':
-				df = panel["final"]
+				df = panel[tableA]
 				df = doLIKE(df,tempB[0],attrA)
-				panel["final"]=df
+				panel[tableA]=df
 				print df
 			else:
 				if len(tempB)==2:
@@ -63,24 +63,22 @@ def doWHERE(query,panel,relations):
 					valueB = tempB[0]
 				# If A is attribute and B is value
 				if valueB<>None:
-					df = panel["final"]
+					df = panel[tableA]
 					stm= attrA+op+str(valueB)
 					df = df.query(stm)
-					panel["final"]=df
+					panel[tableA]=df
 					print df
 				# If A and B are all attribute and at the same table
 				elif tableA==tableB:
-					df = panel["final"]
+					df = panel[tableA]
 					stm = attrA+op+attrB
 					df = df.query(stm)
-					panel["final"]=df
+					panel[tableA]=df
 					print df
 				# If A and B are all attribute and at different tables
 				elif tableB<>None and tableA<>tableB:
 					dfA = panel[tableA]
 					dfB = panel[tableB]
-					if attrA==attrB:
-						continue
 					#if op=='==':
 					#	df = 
 					#stm = attrA+op+'@dfB'+'.'+attrB
@@ -107,24 +105,21 @@ def doWHERE(query,panel,relations):
 
 # TO DO: '_' represents a single character space
 def doLIKE(df,b,attA):
-
-    dp = [[False] * (len(b) + 1) for _ in range(len(attA) + 1)]
-    dp[0][0] = True
-    for i in range(1, len(attA)):
-        dp[i + 1][0] = dp[i - 1][0] and p[i] == '%'
-    for i in range(len(attA)):
-        for j in range(len(b)):
-            if p[i] == '%':
-                dp[i + 1][j + 1] = dp[i - 1][j + 1] or dp[i][j + 1]
-                if p[i - 1] == b[j] or p[i - 1] == '_':
-                    dp[i + 1][j + 1] |= dp[i + 1][j]
-            else:
-                dp[i + 1][j + 1] = dp[i][j] and (p[i] == b[j] or p[i] == '_')
-    return dp[-1][-1]
-
-
-
-
+	if b[-1]=='%' and b[0]=='%':
+		df = df[df[attA].str.contains(b[1:-1])]
+	elif b[-1]<>'%' and b[0]<>'%' and '%' in b:
+		split = b.split('%')
+		df = df[df[attA].str.startswith(split[0])]
+		df = df[df[attA].str.endswith(split[-1])]
+		if len(split)==3:
+			df = df[df[attA].str.contains(split[1])]
+	elif b[-1]=='%':
+		df = df[df[attA].str.startswith(b[:-1])]
+	elif b[0]=='%':
+		df = df[df[attA].str.endswith(b[1:])]
+	else:
+		df = df[df[attA]==b]
+	return df
 
 
 

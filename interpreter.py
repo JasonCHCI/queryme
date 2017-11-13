@@ -171,7 +171,7 @@ def createIndex(query,panel,relations):
             continue
         else:
             tableA, attrA = cond[0].split('.')
-            df = panel[tableA]
+            df = panel["final"]
             try:
                 df.set_index([attrA],append = True, inplace=True)
             except:

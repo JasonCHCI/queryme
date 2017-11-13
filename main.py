@@ -49,6 +49,7 @@ if __name__=="__main__":
         print 70*"-"
         sys.exit()
     if args:
+        print args
         print 70*"-"
         print "| Don't need to input a query statement currently."
         print 70*"-"
@@ -63,6 +64,7 @@ if __name__=="__main__":
         tables ={}
         schemas ={}
         panel = {}
+        second = None
         #panel = Panel(panel)
         print "---------------------------------------------"
         print "| Reading files..."
@@ -76,19 +78,26 @@ if __name__=="__main__":
             # map table name to map2, map2 maps column names to datatype
             schemas[table_name]={}
             # Panel contains multiple tables, map table name to dataframe
-            panel[table_name] = df
-            #dataframes.append(df)
-            #print df.dtypes
+            if second is not None:
+                df['key'] = 0
+                second['key'] = 0
+                df = merge(second, df)
+            second = df
             for col in df.columns:
                 dtype = df[col].dtype
-                schemas[splitext(file)[0]][col]=df[col].dtype
+                schemas[splitext(file)[0]][col] = df[col].dtype
+                # print df[col].dtype
                 #print df[col].dtype
-            if len(df.columns)>300:
-                print 70*"-"
-                print "| The schema of a table should be a set of up to 300 attributes. "
-                print "| Each attribute is one of the following types: Integer, Real, Text, Date, Boolean."
-                print 70*"-"
-                sys.exit()
+            # if len(df.columns)>300:
+            #     print 70*"-"
+            #     print "| The schema of a table should be a set of up to 300 attributes. "
+            #     print "| Each attribute is one of the following types: Integer, Real, Text, Date, Boolean."
+            #     print 70*"-"
+            #     sys.exit()
+
+        panel["final"] = second
+        print "Resulting table is as following:"
+        print panel["final"]
 
         while True:
             print "---------------------------------------------"
