@@ -66,12 +66,12 @@ def checkExist(attributes,relations,tables,schemas):
 # <OP> is one of AND, OR, NOT when A and B are Boolean.
 # <OP> can be LIKE operator for text
 def checkConditions(conditions,tables,schemas,panel):
-    conds = re.split('( AND NOT | OR NOT | AND | OR |NOT )',conditions)
+    conds = re.split('( AND NOT | OR NOT | AND | OR |NOT |(|))',conditions)
     statement = []
     for cond in conds:
         if cond=='':
             continue
-        if cond in (' AND NOT ',' OR NOT ','NOT ',' AND ',' OR '):
+        if cond in (' AND NOT ',' OR NOT ','NOT ',' AND ',' OR ','(',')'):
             statement.extend(cond.split())
             continue
         #tempc = ''.join(cond.split())
