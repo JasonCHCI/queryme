@@ -14,11 +14,15 @@ def checkStatement(statement):
         if tokens.count('WHERE')==1:
             iwhere = tokens.index('WHERE')
             if iselect<ifrom-1 and ifrom<iwhere-1 and iwhere<len(tokens)-1:
-                return True, ''.join(tokens[iselect+1:ifrom]),''.join(tokens[ifrom+1:iwhere]),statement.split('WHERE ',1)[1]
+                return True, ''.join(tokens[iselect+1:ifrom]),' '.join(tokens[ifrom+1:iwhere]),statement.split('WHERE ',1)[1]
         else:
             if iselect<ifrom-1:
                 return True, ''.join(tokens[iselect+1:ifrom]),''.join(tokens[ifrom+1:]),''
     return False,'','',''
+
+def parseFrom(fromClause):
+    print "Line: 25"
+    print fromClause
 
 # check if all attributes in SELECT clause and relations/tables in FROM clause exist in dataframes
 def checkExist(attributes,relations,tables,schemas):
