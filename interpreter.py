@@ -71,7 +71,6 @@ def checkConditions(conditions,tables,schemas,panel):
             a = cond.split('.')
             if len(a)==2 and schemas[a[0]] and a[1] in schemas[a[0]] and schemas[a[0]][a[1]]==np.bool:
                 statement.append(a[0]+'.'+a[1])
-                continue
             elif len(a)==1:
                 count=0
                 for t in tables:
@@ -81,11 +80,7 @@ def checkConditions(conditions,tables,schemas,panel):
                         count+=1
                 if count==1:
                     statement.append(tb+'.'+att)
-                    continue
-                else:
-                    return False,[]
-            else:
-                return False,[]
+
         # if operator is not '', which means tokens is [A,B]
         if operator <> '':
             typeA = None
@@ -108,11 +103,6 @@ def checkConditions(conditions,tables,schemas,panel):
                         typeA = schemas[table][a]
                         tableA= table
                         attA = a
-                if typeA==None or count<>1:
-                    #print "attribute ambiguous"
-                	return False,[]
-            else:
-                return False,[]
             # if B is relation.attribute,find data type. Otherwise return
             if len(b)==2 and schemas[b[0]] and b[1] in schemas[b[0]]:
                 typeB=schemas[b[0]][b[1]]
@@ -128,7 +118,6 @@ def checkConditions(conditions,tables,schemas,panel):
                         typeB = schemas[table][b]
                         tableB= table
                         attB = b
-                if count>1: return False,[]
                 if count==0:
                     try:
                         valueB = eval(b)
@@ -137,31 +126,21 @@ def checkConditions(conditions,tables,schemas,panel):
                             tempb = tempb.astype(np.object)
                         typeB =  tempb.dtype
                     except:
-                        return False,[]
-            else:
-                return False,[]
+                        pass
+            if operator == '=': operator = '=='
             # If <op> is LIKE and A and B have datatype of string, we do query
             # Otherwise, return
             if operator =="LIKE":
-                if typeA<>np.object and typeA<>typeB:
-                    return False,[]
-                else:
-                    statement.append(tableA+'.'+attA+' '+operator+' '+valueB)
+                statement.append(tableA+'.'+attA+' '+operator+' '+valueB)
             # If <op> is in '<>','>=','<=','=','>','<' and A and B have the same datatype except Boolean,
             # then we do query
             if operator <>"LIKE":
-                if operator=='=':
-                    operator='=='
-                if typeB==typeA and typeA<>np.bool:
-                    if valueB==None:
-                        statement.append(tableA+'.'+attA+' '+operator+' '+tableB+'.'+attB)
-                    else:
-                        statement.append(tableA+'.'+attA+' '+operator+' '+str(b))
-
+                if valueB==None:
+                    statement.append(tableA+'.'+attA+' '+operator+' '+tableB+'.'+attB)
                 else:
-                    return False,[]
+                    statement.append(tableA+'.'+attA+' '+operator+' '+str(b))
 
-    return True,statement
+    return statement
 
 
 

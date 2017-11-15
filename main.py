@@ -142,13 +142,7 @@ if __name__=="__main__":
             sys.exit()
 
         # query is condition in WHERE clause as a list
-        goodCond, query = checkConditions(conds,relations,schemas,panel)
-        if not goodCond:
-            print 70*"-"
-            print "| WHERE clause error:"
-            print "| This conditions are illegal. "
-            print 70*"-"
-            sys.exit()
+        query = checkConditions(conds,relations,schemas,panel)
 
         #createIndex(query, panel, relations)
 
