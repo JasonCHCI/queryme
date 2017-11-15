@@ -106,8 +106,7 @@ def checkConditions(conditions,tables,schemas,panel):
             a = tokens[0].split('.')# attribute A may be 'table.att' or atomic 'att'
             b = tokens[1].split('.')# attribute B may be 'table.att' or atomic 'att' or single value
             # if A is relation.attribute,find data type.Otherwise return
-            if len(a)==2 and schemas[a[0]] and a[1] in schemas[a[0]]:
-                typeA=schemas[a[0]][a[1]]
+            if len(a)==2:
                 tableA = a[0]
                 attA = a[1]
             # if A is attribute,find data type. Otherwise return
@@ -122,7 +121,10 @@ def checkConditions(conditions,tables,schemas,panel):
                         attA = a
             # if B is relation.attribute,find data type. Otherwise return
             if len(b)==2:
+<<<<<<< HEAD
                 typeB=schemas[b[0]][b[1]]
+=======
+>>>>>>> 99e2307338d5f3b16ff6297cca9f58367580277a
                 tableB = b[0]
                 attB = b[1]
             # if B is attribute,find data type. Directly find datatype
