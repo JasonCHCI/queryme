@@ -17,12 +17,22 @@ def checkStatement(statement):
                 return True, ''.join(tokens[iselect+1:ifrom]),' '.join(tokens[ifrom+1:iwhere]),statement.split('WHERE ',1)[1]
         else:
             if iselect<ifrom-1:
-                return True, ''.join(tokens[iselect+1:ifrom]),''.join(tokens[ifrom+1:]),''
+                return True, ''.join(tokens[iselect+1:ifrom]),' '.join(tokens[ifrom+1:]),''
     return False,'','',''
 
-def parseFrom(fromClause):
-    print "Line: 25"
-    print fromClause
+def parseFrom(fromClause, panel, schemas):
+    fileTokens = fromClause.split(",")
+    for i in range(len(fileTokens)):
+        file = fileTokens[i].split()
+        df = read_csv(file[0].lstrip(), parse_dates=True, infer_datetime_format=True)
+        table_name = file[0].lstrip().split(".")[0]
+        if len(file) > 1:
+            table_name = file[1].lstrip()
+        schemas[table_name] = {}
+        panel[table_name] = df
+        for col in df.columns:
+            schemas[table_name][col] = df[col].dtype
+    return panel, schemas
 
 # check if all attributes in SELECT clause and relations/tables in FROM clause exist in dataframes
 def checkExist(attributes,relations,tables,schemas):
