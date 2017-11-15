@@ -121,7 +121,7 @@ def checkConditions(conditions,tables,schemas,panel):
                         tableA= table
                         attA = a
             # if B is relation.attribute,find data type. Otherwise return
-            if len(b)==2 and schemas[b[0]] and b[1] in schemas[b[0]]:
+            if len(b)==2:
                 typeB=schemas[b[0]][b[1]]
                 tableB = b[0]
                 attB = b[1]
@@ -148,7 +148,7 @@ def checkConditions(conditions,tables,schemas,panel):
             # If <op> is LIKE and A and B have datatype of string, we do query
             # Otherwise, return
             if operator =="LIKE":
-                statement.append(tableA+'.'+attA+' '+operator+' '+valueB)
+                statement.append(tableA+'.'+attA+' '+operator+' '+b)
             # If <op> is in '<>','>=','<=','=','>','<' and A and B have the same datatype except Boolean,
             # then we do query
             if operator <>"LIKE":
