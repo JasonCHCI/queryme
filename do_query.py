@@ -179,7 +179,7 @@ def doLIKE(df, b, attA, noop):
 
 
 # def doOpTwoTable(op, cond1, cond2, df1, df2):
-#     # to do: given a op and two conditions, apply them and return the result df list
+#     # to do: given a op and two conditions, apply them and return the result df
 #     # if cond1 and cond2 are from two tables, then first join, then return result df
 #     return result_df
 
