@@ -35,6 +35,8 @@ def main(argv):
             sys.exit(2)
     return files,args
 
+
+
 if __name__=="__main__":
 
     files,args = main(sys.argv[1:])
@@ -103,6 +105,7 @@ if __name__=="__main__":
         # conds: conditions in WHERE clause
         goodstm,attrs,relations,conds = checkStatement(stm)
 
+
         if not goodstm:
             print 70*"-"
             print "| Please input a query statement with legal format. "
@@ -110,36 +113,7 @@ if __name__=="__main__":
             print 70*"-"
             sys.exit()
 
-        # Check if all tables and attribute in statement exist
-        # attrs: attribute in SELECT clause
-        # relations: tables name in FROM clause
-        # conds: conditions in WHERE clause
-        exist = checkExist(attrs,relations,tables,schemas)
-        if exist==0:
-            print 70*"-"
-            print "| Attribute clause error:"
-            print "| Please input a attribute with legal format. "
-            print "| attribute can be express by 'name' or 'relationName.attributeName'"
-            print 70*"-"
-            sys.exit()
-        if exist==1 or exist==2:
-            print 70*"-"
-            print "| Attribute error:"
-            print "| This attribute doesn't exist in tables. "
-            print 70*"-"
-            sys.exit()
-        if exist==3:
-            print 70*"-"
-            print "| Table error:"
-            print "| This table doesn't exist. "
-            print 70*"-"
-            sys.exit()
-        if exist==4:
-            print 70*"-"
-            print "| Attribute error:"
-            print "| This attribute's name is duplicate. "
-            print 70*"-"
-            sys.exit()
+
 
         # query is condition in WHERE clause as a list
         goodCond, query = checkConditions(conds,relations,schemas,panel)
