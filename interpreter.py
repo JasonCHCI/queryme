@@ -20,7 +20,7 @@ def checkStatement(statement):
                 return True, ''.join(tokens[iselect+1:ifrom]),' '.join(tokens[ifrom+1:]),''
     return False,'','',''
 
-def parseFrom(fromClause, panel, schemas):
+def parseFrom(fromClause):
     fileTokens = fromClause.split(",")
     table = []
     panel = {}
