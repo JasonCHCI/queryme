@@ -1,5 +1,6 @@
 import sys, getopt
 import sqlparse
+import shlex
 from pandas import *
 from os.path import *
 from copy import *
@@ -40,7 +41,9 @@ def doWHERE(query, panel, relations):
     notOP = None
     final_df = None
     for i in range(len(query)):
-        cond = query[i].split()
+        print "Initial cond:"
+        print query[i]
+        cond = shlex.split(query[i])
         if cond[0] in ('AND', 'OR'):
             preOP = cond[0]
             continue
@@ -153,11 +156,11 @@ def doWHERE(query, panel, relations):
 
 
 def doLIKE(df, b, attA, noop):
-    df.reset_index(level=[attA], inplace=True)
+    #df.reset_index(level=[attA], inplace=True)
     regex_pat = b.replace('%', '.*')
     regex_pat = regex_pat.replace('_', '.')
     if noop <> 'NOT':
-        df = df[df[attA].str.match(regex_pat)]
+        df = df[df[attA].str.match(regex_pat, na=False)]
     else:
-        df = df[~df[attA].str.match(regex_pat)]
+        df = df[~df[attA].str.match(regex_pat, na=False)]
     return df

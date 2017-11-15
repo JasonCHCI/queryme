@@ -106,8 +106,7 @@ def checkConditions(conditions,tables,schemas,panel):
             a = tokens[0].split('.')# attribute A may be 'table.att' or atomic 'att'
             b = tokens[1].split('.')# attribute B may be 'table.att' or atomic 'att' or single value
             # if A is relation.attribute,find data type.Otherwise return
-            if len(a)==2 and schemas[a[0]] and a[1] in schemas[a[0]]:
-                typeA=schemas[a[0]][a[1]]
+            if len(a)==2:
                 tableA = a[0]
                 attA = a[1]
             # if A is attribute,find data type. Otherwise return
@@ -121,8 +120,7 @@ def checkConditions(conditions,tables,schemas,panel):
                         tableA= table
                         attA = a
             # if B is relation.attribute,find data type. Otherwise return
-            if len(b)==2 and schemas[b[0]] and b[1] in schemas[b[0]]:
-                typeB=schemas[b[0]][b[1]]
+            if len(b)==2:
                 tableB = b[0]
                 attB = b[1]
             # if B is attribute,find data type. Directly find datatype
@@ -148,7 +146,7 @@ def checkConditions(conditions,tables,schemas,panel):
             # If <op> is LIKE and A and B have datatype of string, we do query
             # Otherwise, return
             if operator =="LIKE":
-                statement.append(tableA+'.'+attA+' '+operator+' '+valueB)
+                statement.append(tableA+'.'+attA+' '+operator+' '+b)
             # If <op> is in '<>','>=','<=','=','>','<' and A and B have the same datatype except Boolean,
             # then we do query
             if operator <>"LIKE":
