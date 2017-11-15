@@ -42,20 +42,20 @@ def doWHERE(query, panel, relations):
     for i in range(len(query)):
         cond = query[i].split()
         if cond[0] in ('AND', 'OR'):
-            aoop = cond[0]
+            preOP = cond[0]
             continue
         elif cond[0] == 'NOT':
-            noop = cond[0]
+            notOP = cond[0]
             continue
         elif len(cond) == 1:
             tableA, attrA = cond[0].split('.')
             # df = panel[tableA]
-            if aoop == 'AND' and tableA in temp_panel:
+            if preOP == 'AND' and tableA in temp_panel:
                 df = temp_panel[tableA]
             else:
                 df = panel[tableA]
-            df = df.query(attrA) if noop <> 'NOT' else df.query(attrA + '== False')  # TO DO
-            if aoop == 'OR' and tableA in temp_panel:
+            df = df.query(attrA) if notOP <> 'NOT' else df.query(attrA + '== False')  # TO DO
+            if preOP == 'OR' and tableA in temp_panel:
                 # temp_panel[tableA]=merge(temp_panel[tableA].reset_index(),df.reset_index(),how='outer').set_index(attrA)
                 temp_panel[tableA] = temp_panel[tableA].append(df).drop_duplicates()
 
@@ -63,19 +63,19 @@ def doWHERE(query, panel, relations):
                 temp_panel[tableA] = df
             # panel[tableA]=df
             final_df = temp_panel[tableA]
-            noop = None
+            notOP = None
         elif len(cond) == 3:
             tableA, attrA = cond[0].split('.')
             tableB, attrB, valueB = None, None, None
             op = cond[1]
             tempB = cond[2].split('.')
             if op == 'LIKE':
-                if aoop == 'AND' and tableA in temp_panel:
+                if preOP == 'AND' and tableA in temp_panel:
                     df = temp_panel[tableA]
                 else:
                     df = panel[tableA]
-                df = doLIKE(df, tempB[0], attrA, noop)
-                if aoop == 'OR' and tableA in temp_panel:
+                df = doLIKE(df, tempB[0], attrA, notOP)
+                if preOP == 'OR' and tableA in temp_panel:
                     temp_panel[tableA] = concat([temp_panel[tableA], df]).drop_duplicates()
                 else:
                     temp_panel[tableA] = df
@@ -91,13 +91,13 @@ def doWHERE(query, panel, relations):
                     valueB = tempB[0]
                 # If A is attribute and B is value
                 if valueB <> None:
-                    if aoop == 'AND' and tableA in temp_panel:
+                    if preOP == 'AND' and tableA in temp_panel:
                         df = temp_panel[tableA]
                     else:
                         df = panel[tableA]
                     stm = attrA + op + str(valueB)
-                    df = df.query(stm) if noop <> 'NOT' else df.query('not ' + stm)
-                    if aoop == 'OR' and tableA in temp_panel:
+                    df = df.query(stm) if notOP <> 'NOT' else df.query('not ' + stm)
+                    if preOP == 'OR' and tableA in temp_panel:
                         temp_panel[tableA] = concat([temp_panel[tableA], df]).drop_duplicates()
                     else:
                         temp_panel[tableA] = df
@@ -105,13 +105,13 @@ def doWHERE(query, panel, relations):
 
                 # If A and B are all attribute and at the same table
                 elif tableA == tableB:
-                    if aoop == 'AND' and tableA in temp_panel:
+                    if preOP == 'AND' and tableA in temp_panel:
                         df = temp_panel[tableA]
                     else:
                         df = panel[tableA]
                     stm = attrA + op + attrB
-                    df = df.query(stm) if noop <> 'NOT' else df.query('not ' + stm)
-                    if aoop == 'OR' and tableA in temp_panel:
+                    df = df.query(stm) if notOP <> 'NOT' else df.query('not ' + stm)
+                    if preOP == 'OR' and tableA in temp_panel:
                         temp_panel[tableA] = concat([temp_panel[tableA], df]).drop_duplicates()
                     else:
                         temp_panel[tableA] = df
@@ -119,26 +119,26 @@ def doWHERE(query, panel, relations):
 
                 # If A and B are all attribute and at different tables
                 elif tableB <> None and tableA <> tableB:
-                    if aoop == 'AND' and tableA + tableB in temp_panel:
+                    if preOP == 'AND' and tableA + tableB in temp_panel:
                         df = temp_panel[tableA + tableB]
                     else:
                         dfB = panel[tableB]
                         dfA = panel[tableA]
-                        if op == '==' and noop == None:
+                        if op == '==' and notOP == None:
                             df = merge(dfB, dfA, left_on=attrB, right_on=attrA)
                             temp_panel[tableA + tableB] = concat([temp_panel[tableA + tableB],
-                                                                  df]).drop_duplicates() if aoop == 'OR' and tableA + tableB in temp_panel else df
+                                                                  df]).drop_duplicates() if preOP == 'OR' and tableA + tableB in temp_panel else df
                             temp_panel[tableA] = temp_panel[tableA + tableB]
                             temp_panel[tableB] = temp_panel[tableA + tableB]
                             final_df = temp_panel[tableA + tableB]
-                            noop = None
+                            notOP = None
                             continue
                         dfB['key'] = 0
                         dfA['key'] = 0
                         df = merge(dfB, dfA)
                     stm = attrA + op + attrB
-                    df = df.query(stm) if noop <> 'NOT' else df.query('not ' + stm)
-                    if aoop == 'OR' and tableA + tableB in temp_panel:
+                    df = df.query(stm) if notOP <> 'NOT' else df.query('not ' + stm)
+                    if preOP == 'OR' and tableA + tableB in temp_panel:
                         temp_panel[tableA + tableB] = concat([temp_panel[tableA + tableB], df]).drop_duplicates()
                     else:
                         temp_panel[tableA + tableB] = df
@@ -148,7 +148,7 @@ def doWHERE(query, panel, relations):
                     # stm = attrA+op+'@dfB'+'.'+attrB
                     # df = dfA.query('id == @dfB.id')
                     final_df = temp_panel[tableA + tableB]
-            noop = None
+            notOP = None
     return final_df
 
 
