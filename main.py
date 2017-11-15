@@ -48,18 +48,18 @@ if __name__=="__main__":
         print "| The file is not csv format. Please input a csv file."
         print 70*"-"
         sys.exit()
-    if args:
+    if not args:
         print 70*"-"
-        print "| Don't need to input a query statement currently."
+        print "| Please input a query statement."
         print 70*"-"
         sys.exit()
-    # if len(args)>1:
-    #     print 70*"-"
-    #     print "| Please input exact one statement"
-    #     print 70*"-"
-    #     sys.exit()
+    if len(args)>1:
+        print 70*"-"
+        print "| Please input exact one statement"
+        print 70*"-"
+        sys.exit()
     else:
-        #stm = args[0]
+        stm = args[0]
         tables ={}
         schemas ={}
         panel = {}
@@ -90,71 +90,89 @@ if __name__=="__main__":
                 print 70*"-"
                 sys.exit()
 
-        while True:
-            print "---------------------------------------------"
-            stm = raw_input('| Input a query or input exit:\n'
-                            '---------------------------------------------\n')
-            if stm=='exit':
-                sys.exit()
-            # get attributes, relations, conditions from statement
-            # attrs: attribute in SELECT clause
-            # relations: tables name in FROM clause
-            # conds: conditions in WHERE clause
-            goodstm,attrs,relations,conds = checkStatement(stm)
+        # while True:
+        #     print "---------------------------------------------"
+        #     stm = raw_input('| Input a query or input exit:\n'
+        #                     '---------------------------------------------\n')
+        #     if stm=='exit':
+        #         sys.exit()
 
-            if not goodstm:
-                print 70*"-"
-                print "| Please input a query statemetn with legal format. "
-                print '| Format: "SELECT A1,A2,... FROM R1,R2... [WHERE C1 AND C2 AND ...]"'
-                print 70*"-"
-                sys.exit()
+        # get attributes, relations, conditions from statement
+        # attrs: attribute in SELECT clause
+        # relations: tables name in FROM clause
+        # conds: conditions in WHERE clause
+        goodstm,attrs,relations,conds = checkStatement(stm)
 
-            exist = checkExist(attrs,relations,tables,schemas)
-            if exist==0:
-                print 70*"-"
-                print "| Please input a attribute with legal format. "
-                print "| attribute can be express by 'name' or 'relationName.attributeName'"
-                print 70*"-"
-                sys.exit()
-            if exist==1 or exist==2:
-                print 70*"-"
-                print "| This attribute doesn't exist in tables. "
-                print 70*"-"
-                sys.exit()
-            if exist==3:
-                print 70*"-"
-                print "| This table doesn't exist. "
-                print 70*"-"
-                sys.exit()
-            if exist==4:
-                print 70*"-"
-                print "| This attribute's name is duplicate. "
-                print 70*"-"
-                sys.exit()
+        if not goodstm:
+            print 70*"-"
+            print "| Please input a query statement with legal format. "
+            print '| Format: "SELECT A1,A2,... FROM R1,R2... [WHERE C1 AND C2 AND ...]"'
+            print 70*"-"
+            sys.exit()
 
-            # query is condition in WHERE clause as a list
-            goodCond, query = checkConditions(conds,relations,schemas,panel)
-            if not goodCond:
-                print 70*"-"
-                print "| This conditions are illegal. "
-                print 70*"-"
-                sys.exit()
+        # Check if all tables and attribute in statement exist
+        # attrs: attribute in SELECT clause
+        # relations: tables name in FROM clause
+        # conds: conditions in WHERE clause
+        exist = checkExist(attrs,relations,tables,schemas)
+        if exist==0:
+            print 70*"-"
+            print "| Attribute clause error:"
+            print "| Please input a attribute with legal format. "
+            print "| attribute can be express by 'name' or 'relationName.attributeName'"
+            print 70*"-"
+            sys.exit()
+        if exist==1 or exist==2:
+            print 70*"-"
+            print "| Attribute error:"
+            print "| This attribute doesn't exist in tables. "
+            print 70*"-"
+            sys.exit()
+        if exist==3:
+            print 70*"-"
+            print "| Table error:"
+            print "| This table doesn't exist. "
+            print 70*"-"
+            sys.exit()
+        if exist==4:
+            print 70*"-"
+            print "| Attribute error:"
+            print "| This attribute's name is duplicate. "
+            print 70*"-"
+            sys.exit()
 
-            createIndex(query,panel, relations)
+        # query is condition in WHERE clause as a list
+        goodCond, query = checkConditions(conds,relations,schemas,panel)
+        if not goodCond:
+            print 70*"-"
+            print "| WHERE clause error:"
+            print "| This conditions are illegal. "
+            print 70*"-"
+            sys.exit()
 
-            print "---------------------------------------------"
-            print "| Querying..."
-            print "---------------------------------------------"
-            start_time = time.time() #used for running time
-            # attrs: attributes in SELECT clause
-            # relations: tables name in FROM clause
-            # query: condition in WHERE clause as a list
-            doWHERE(query,panel,relations)
+        #createIndex(query, panel, relations)
 
-            #total_time = time.time()-start_time #total running time, in seconds
-            print "---------------------------------------------"
-            print "| running time:",time.time()-start_time,"seconds     |"
-            print "---------------------------------------------"
+        print "---------------------------------------------"
+        print "| Querying..."
+        print "---------------------------------------------"
+        start_time = time.time() #used for running time
+
+
+
+        # attrs: attributes in SELECT clause
+        # relations: tables name in FROM clause
+        # query: condition in WHERE clause as a list
+        where_df = doWHERE(query,panel,relations)
+        select_df = doSELECT(where_df, attrs)
+        print select_df
+
+
+
+
+        #total_time = time.time()-start_time #total running time, in seconds
+        print "---------------------------------------------"
+        print "| running time:",time.time()-start_time,"seconds     |"
+        print "---------------------------------------------"
 
 
 

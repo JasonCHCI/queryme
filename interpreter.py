@@ -30,7 +30,8 @@ def checkExist(attributes,relations,tables,schemas):
             att=a.split('.')
             if len(att)>2: return 0
             elif len(att)==2:
-                if att[1] not in schemas[att[0]]: return 1
+                if att[0] not in schemas: return 3
+                elif att[1] not in schemas[att[0]]: return 1
                 else: continue
             else:
                 if not any(a in schemas[r] for r in relations) and a<>'*':
@@ -51,6 +52,8 @@ def checkConditions(conditions,tables,schemas,panel):
     statement = []
     tables = tables.split(',')
     for cond in conds:
+        if cond=='':
+            continue
         if cond in (' AND NOT ',' OR NOT ','NOT ',' AND ',' OR '):
             statement.extend(cond.split())
             continue
@@ -165,15 +168,22 @@ def checkConditions(conditions,tables,schemas,panel):
 
 
 def createIndex(query,panel,relations):
+    dfA = None
+    dfB = None
     for i in range(len(query)):
         cond = query[i].split()
         if cond[0] in ('AND','OR','NOT'):
             continue
         else:
             tableA, attrA = cond[0].split('.')
-            df = panel[tableA]
+            dfA = panel[tableA]
+            if len(cond)==3 and len(cond[2].split('.'))==3:
+                tableB, attrB = cond[2].split('.')
+                dfB = panel[tableA]
             try:
-                df.set_index([attrA],append = True, inplace=True)
+                dfA.set_index([attrA],append = True, inplace=True)
+                if dfB!=None:
+                    dfB.set_index([attrB],append = True, inplace=True)
             except:
                 pass
 
