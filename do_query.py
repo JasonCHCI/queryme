@@ -128,7 +128,9 @@ def doWHERE(query, panel, relations):
                         dfB = panel[tableB]
                         dfA = panel[tableA]
                         if op == '==' and notOP == None:
-                            df = merge(dfB, dfA, left_on=attrB, right_on=attrA)
+                            print panel[tableA]
+                            df = merge(dfB, dfA.dropna(), left_on=attrB, right_on=attrA)
+                            print panel[tableA]
                             temp_panel[tableA + tableB] = concat([temp_panel[tableA + tableB],
                                                                   df]).drop_duplicates() if preOP == 'OR' and tableA + tableB in temp_panel else df
                             temp_panel[tableA] = temp_panel[tableA + tableB]
