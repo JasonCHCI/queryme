@@ -32,6 +32,7 @@ def doFROM(panel):
 
 	return
 
+
 # WHERE clause does the cartesian product of all relations
 def doWHERE(query, panel, relations):
     dfPre = None
@@ -166,3 +167,43 @@ def doLIKE(df, b, attA, noop):
     else:
         df = df[~df[attA].str.match(regex_pat, na=False)]
     return df
+
+
+#
+# def doCond(cond, df):
+#     # to do: given a condition, apply it and return the filtered df
+#     return result_df
+#
+#
+# def doOp(op, df1, df2):
+#     # to do: given a op and two conditions, apply them and return the result df
+#     return result_df
+#
+#
+# def doWhere_new(query_list, df_list):
+#     new_query_list = []
+#     new_df_list = []
+#     # do parenthesis first
+#     for i in xrange(len(query_list)):
+#         query = query_list[i]
+#         df = df_list[i]
+#         if not query.startwith("("):
+#             new_query_list.append(query)
+#             new_df_list.append(df)
+#
+#         if query.startwith("("):
+#         # to do: find the right parentheis and remove both left and right and pass the trimmed query recursively
+#             parenthesis_query_list = ["xxxx"]
+#             parenthesis_df_list = ["xxxx"]
+#             filtered_parenthesis_df = doWhere_new(parenthesis_query_list, parenthesis_df_list)
+#             filtered_parenthesis_query = "filtered"
+#             new_query_list.append(filtered_parenthesis_query)
+#             new_df_list.append(filtered_parenthesis_df)
+#
+#     for i in xrange(len(new_query_list)):
+#         query = query_list[i]
+#         df = df_list[i]
+#         # no parenthesis, do condition by sequence and return df
+#         return result_df
+
+
