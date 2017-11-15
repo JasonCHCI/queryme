@@ -33,17 +33,15 @@ def doFROM(panel):
 	return
 
 # WHERE clause does the cartesian product of all relations
-def doWHERE(query, panel, relations):
-    dfPre = None
-    df = None
-    temp_panel = {}
+def doWHERE(query, panel, temp_panel={}, final_df = None):
     preOP = None
     notOP = None
-    final_df = None
     for i in range(len(query)):
         print "Initial cond:"
         print query[i]
         cond = shlex.split(query[i])
+        if cond[0] == '(':
+            
         if cond[0] in ('AND', 'OR'):
             preOP = cond[0]
             continue
