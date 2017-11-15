@@ -175,9 +175,21 @@ def doLIKE(df, b, attA, noop):
 #     return result_df
 #
 #
-# def doOp(op, df1, df2):
+# def doOpOneTable(op, cond1, cond2, df1, df2):
 #     # to do: given a op and two conditions, apply them and return the result df
 #     return result_df
+
+
+# def doOpTwoTable(op, cond1, cond2, df1, df2):
+#     # to do: given a op and two conditions, apply them and return the result df list
+#     # if cond1 and cond2 are from two tables, then first join, then return result df
+#     return result_df
+
+
+# def doJoin(cond1, cond2, df1, df2):
+#     # to do: given table1.attribute1, table2.attribute2, do join and return the joined df
+#     return joined_df
+
 #
 #
 # def doWhere_new(query_list, df_list):
