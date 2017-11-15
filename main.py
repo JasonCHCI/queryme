@@ -25,16 +25,13 @@ if __name__=="__main__":
         # conds: conditions in WHERE clause
         goodstm,attrs,fromClause,conds = checkStatement(stm)
 
-        schemas = {}
-        panel = {}
-
-        panel, schemas = parseFrom(fromClause, panel, schemas)
+        panel, schemas, table = parseFrom(fromClause)
 
 
 
 
         # query is condition in WHERE clause as a list
-        query = checkConditions(conds,fromClause,schemas,panel)
+        query = checkConditions(conds, table, schemas, panel)
 
         #createIndex(query, panel, relations)
 
@@ -48,7 +45,7 @@ if __name__=="__main__":
         # attrs: attributes in SELECT clause
         # relations: tables name in FROM clause
         # query: condition in WHERE clause as a list
-        where_df = doWHERE(query,panel,fromClause)
+        where_df = doWHERE(query, panel, table)
         select_df = doSELECT(where_df, attrs)
         print select_df
 

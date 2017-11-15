@@ -22,17 +22,21 @@ def checkStatement(statement):
 
 def parseFrom(fromClause, panel, schemas):
     fileTokens = fromClause.split(",")
+    table = []
+    panel = {}
+    schemas = {}
     for i in range(len(fileTokens)):
         file = fileTokens[i].split()
         df = read_csv(file[0].lstrip(), parse_dates=True, infer_datetime_format=True)
         table_name = file[0].lstrip().split(".")[0]
         if len(file) > 1:
             table_name = file[1].lstrip()
+        table.append(table_name)
         schemas[table_name] = {}
         panel[table_name] = df
         for col in df.columns:
             schemas[table_name][col] = df[col].dtype
-    return panel, schemas
+    return panel, schemas, table
 
 # check if all attributes in SELECT clause and relations/tables in FROM clause exist in dataframes
 def checkExist(attributes,relations,tables,schemas):
@@ -64,7 +68,6 @@ def checkExist(attributes,relations,tables,schemas):
 def checkConditions(conditions,tables,schemas,panel):
     conds = re.split('( AND NOT | OR NOT | AND | OR |NOT )',conditions)
     statement = []
-    tables = tables.split(',')
     for cond in conds:
         if cond=='':
             continue
