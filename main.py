@@ -67,6 +67,9 @@ if __name__=="__main__":
         # relations: tables name in FROM clause
         # conds: conditions in WHERE clause
         goodstm,attrs,relations,conds = checkStatement(stm)
+        print conds
+
+        parseFrom(relations)
 
 
         if not goodstm:
