@@ -23,7 +23,9 @@ def doSELECT(df, attrs):
     return df
 
 
+
 # WHERE clause does the cartesian product of all relations
+<<<<<<< HEAD
 def doWHERE(query, panel):
     temp_panel = copy(panel)
     final_df = None
@@ -45,6 +47,18 @@ def doWHERE(query, panel):
             else:
                 return final_df
         elif cond[0] in ('AND', 'OR'):
+=======
+def doWHERE(query, panel, temp_panel={}, final_df = None):
+    preOP = None
+    notOP = None
+    for i in range(len(query)):
+        print "Initial cond:"
+        print query[i]
+        cond = shlex.split(query[i])
+        if cond[0] == '(':
+            
+        if cond[0] in ('AND', 'OR'):
+>>>>>>> 94bf3bf75d396e3140e1bed9da7e8e0e30c58cd0
             preOP = cond[0]
             continue
         elif cond[0] == 'NOT':
