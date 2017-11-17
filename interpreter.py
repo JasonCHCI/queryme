@@ -5,23 +5,21 @@ from do_query import *
 import re
 import ast
 
-# check if statement is correct format: SELECT A1,A2,... FROM R1,R2... WHERE C1 AND C2 AND ...
-def checkStatement(statement):
-    tokens = statement.split()
-    if all(tokens.count(keyWord)==1 for keyWord in ('SELECT', 'FROM')):
-        iselect = tokens.index('SELECT')
-        ifrom = tokens.index('FROM')
-        if tokens.count('WHERE')==1:
-            iwhere = tokens.index('WHERE')
-            if iselect<ifrom-1 and ifrom<iwhere-1 and iwhere<len(tokens)-1:
-                return True, ''.join(tokens[iselect+1:ifrom]),' '.join(tokens[ifrom+1:iwhere]),statement.split('WHERE ',1)[1]
-        else:
-            if iselect<ifrom-1:
-                return True, ''.join(tokens[iselect+1:ifrom]),' '.join(tokens[ifrom+1:]),''
-    return False,'','',''
+# @parameter: statement is correct format: SELECT A1,A2,... FROM R1,R2... WHERE C1 AND C2 AND ...
+# @return attributes list, tables list, condition list
+def parseStatement(statement):
+    tokens = re.split('SELECT | FROM | WHERE ', statement)
+    if tokens[0]=='': tokens=tokens[1:]
+    attrs = [x.strip() for x in tokens[0].split(',')]
+    tables= tokens[1].split(',')
+    conds = []
+    if len(tokens)==3:
+        conds = filter(None,re.split('( AND NOT | OR NOT | AND | OR |NOT |\(|\))',tokens[2]))
+    return attrs,tables,conds
 
-def parseFrom(fromClause):
-    fileTokens = fromClause.split(",")
+# @parameter: fileTokens is the list parsed from FROM clause, that stores all csv files we are going to read
+# @return: panel that store dataframes, schemas that stores datatypes, tables that stores table names
+def readCSVFile(attrs, fileTokens):
     table = []
     panel = {}
     schemas = {}
@@ -35,130 +33,68 @@ def parseFrom(fromClause):
         schemas[table_name] = {}
         panel[table_name] = df
         for col in df.columns:
-            schemas[table_name][col] = df[col].dtype
-    return panel, schemas, table
+            new_col = table_name+'00'+col
+            panel[table_name].rename(columns={col:new_col},inplace=True)
+            schemas[table_name][new_col] = panel[table_name][new_col].dtype
+            if col in attrs:
+                attrs.remove(col)
+                attrs.append(new_col)
+        #print panel[table_name].columns
+    for i in range(len(attrs)):
+        if len(attrs[i].split('.'))==2:
+            attrs[i] = '00'.join(attrs[i].split('.'))
 
-# check if all attributes in SELECT clause and relations/tables in FROM clause exist in dataframes
-def checkExist(attributes,relations,tables,schemas):
-    attributes=attributes.split(',')
-    relations =relations.split(',')
-    if all(r in tables for r in relations):
-        # attribute may be format of 'table.att' or 'att'
-        for a in attributes:
-            att=a.split('.')
-            if len(att)>2: return 0
-            elif len(att)==2:
-                if att[0] not in schemas: return 3
-                elif att[1] not in schemas[att[0]]: return 1
-                else: continue
-            else:
-                if not any(a in schemas[r] for r in relations) and a<>'*':
-                    return 2
-                elif sum(a in schemas[r] for r in relations)>1:
-                    return 4
-        return 5
-    else:
-        return 3
-
+    return attrs, panel, schemas, table
 
 # Conditions should be like A<OP>B, A is an attribute and B can be attribute or value
-# <OP> is one of =, >, <, <>, >= and <= when A and B are all data types except Boolean
-# <OP> is one of AND, OR, NOT when A and B are Boolean.
-# <OP> can be LIKE operator for text
-def checkConditions(conditions,tables,schemas,panel):
-    conds = re.split('( AND NOT | OR NOT | AND | OR |NOT )',conditions)
-    statement = []
-    for cond in conds:
-        if cond=='':
+# @paremeter: conds - condition list in WHERE clause
+#             tables- list of tables name
+#             schemas - list of schemas
+# @return: modified conds
+def parseConditions(conds,tables,schemas):
+    for i in range(len(conds)):
+        cond  = conds[i]
+        if cond in (' AND NOT ', ' OR NOT ', 'NOT ', ' AND ', ' OR '):
+            conds[i:i + 1] = cond.split()
             continue
-        if cond in (' AND NOT ',' OR NOT ','NOT ',' AND ',' OR '):
-            statement.extend(cond.split())
-            continue
-        #tempc = ''.join(cond.split())
-        tempc= ''.join(re.findall('"[^"]*"|\'[^\']*\'|[^"\'\s]+',cond))
-        operator = ''
-        # If condition is 'A <op> B', then split condition 'A <op> B' to [A,B], and operator = <op>
-        for i in ('<>','>=','<=','=','>','<','LIKE'):
-            if i in tempc:
-                operator = i
-                tokens = tempc.split(i)#split condition 'A <op> B' to [A,B]
-                break
-        # If condition is single boolean attribute, test if the attribute exist and if it is boolean value
-        else:
-            a = cond.split('.')
-            if len(a)==2 and schemas[a[0]] and a[1] in schemas[a[0]] and schemas[a[0]][a[1]]==np.bool:
-                statement.append(a[0]+'.'+a[1])
-            elif len(a)==1:
-                count=0
-                for t in tables:
-                    if a[0] in schemas[t] and schemas[t][a[0]]==np.bool:
-                        tb = t
-                        att= a[0]
-                        count+=1
-                if count==1:
-                    statement.append(tb+'.'+att)
-
-        # if operator is not '', which means tokens is [A,B]
-        if operator <> '':
-            typeA = None
-            typeB = None
-            tableA,tableB,attA,attB,valueB= '','','','',None
+        tempc = ''.join(re.findall('"[^"]*"|\'[^\']*\'|[^"\'\s]+',cond)) #remove all empty spaces except string quotes
+        tokens = re.split('(<>|>=|<=|=|<|>|LIKE)',tempc) #split condition 'A <op> B' to [A,<op>,B]
+        # If condition is single boolean attribute
+        if len(tokens)==1 and len(tokens[0].split('.'))==1:
+            conds[i]=tokens[0]
+            for table in tables:
+                for col in schemas[table]:
+                    if tokens[0] == col.split('00')[1]:
+                        conds[i] = table+'.'+table+'00'+tokens[0]
+        # If Condition is A <op> B, tokens=[A,<op>,B]
+        elif len(tokens)==3:
+            stringA = ''
+            stringB = ''
             a = tokens[0].split('.')# attribute A may be 'table.att' or atomic 'att'
-            b = tokens[1].split('.')# attribute B may be 'table.att' or atomic 'att' or single value
-            # if A is relation.attribute,find data type.Otherwise return
-            if len(a)==2:
-                tableA = a[0]
-                attA = a[1]
+            b = tokens[2].split('.')# attribute B may be 'table.att' or atomic 'att' or single value
+            op = tokens[1]
+            if op == '=': op = '=='
             # if A is attribute,find data type. Otherwise return
-            elif len(a)==1:
-                a=a[0]
-                count = 0
+            if len(a)==1:
                 for table in tables:
-                    if a in schemas[table]:
-                        count+=1
-                        typeA = schemas[table][a]
-                        tableA= table
-                        attA = a
-            # if B is relation.attribute,find data type. Otherwise return
-            if len(b)==2:
-                tableB = b[0]
-                attB = b[1]
+                    for col in schemas[table]:
+                        if a[0] == col.split('00')[1]:
+                            stringA = table + '.' + table+'00'+a[0]
+            else:
+                stringA = a[0]+'.' + a[0] + '00' + a[1]
             # if B is attribute,find data type. Directly find datatype
-            elif len(b)==1:
-                b=b[0]
-                count = 0
+            if len(b)==1:
                 for table in tables:
-                    if b in schemas[table]:
-                        count+=1
-                        typeB = schemas[table][b]
-                        tableB= table
-                        attB = b
-                if count==0:
-                    try:
-                        valueB = eval(b)
-                        tempb = np.array(eval(b))
-                        if tempb.dtype.char == 'S':
-                            tempb = tempb.astype(np.object)
-                        typeB =  tempb.dtype
-                    except:
-                        pass
-            if operator == '=': operator = '=='
-            # If <op> is LIKE and A and B have datatype of string, we do query
-            # Otherwise, return
-            if operator =="LIKE":
-                statement.append(tableA+'.'+attA+' '+operator+' '+b)
-            # If <op> is in '<>','>=','<=','=','>','<' and A and B have the same datatype except Boolean,
-            # then we do query
-            if operator <>"LIKE":
-                if valueB==None:
-                    statement.append(tableA+'.'+attA+' '+operator+' '+tableB+'.'+attB)
+                    for col in schemas[table]:
+                        if len(col.split('00'))>1 and b[0] == col.split('00')[1]:
+                            stringB = table + '.' + table+'00'+a[0]
                 else:
-                    statement.append(tableA+'.'+attA+' '+operator+' '+str(b))
-
-    return statement
-
-
-
+                    stringB = b[0]
+            else:
+                stringB = b[0] + '.' + b[0] + '00' + b[1]
+            conds[i] = stringA+' '+op+' '+stringB
+    #print conds
+    return conds
 
 
 def createIndex(query,panel,relations):

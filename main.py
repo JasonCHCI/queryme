@@ -20,18 +20,31 @@ if __name__=="__main__":
             sys.exit()
 
         # get attributes, relations, conditions from statement
-        # attrs: attribute in SELECT clause
-        # relations: tables name in FROM clause
-        # conds: conditions in WHERE clause
-        goodstm,attrs,fromClause,conds = checkStatement(stm)
+        # selectClause: attribute in SELECT clause as a list [a1,a2,a3,...]
+        # fromClause: tables name in FROM clause as a list [t1,t2,t3..] or [table1 t1, table2 2, table3 t3,...]
+        # whereClause: conditions in WHERE clause as a list [c1,'AND',c2,'OR',C3,...]
+        try:
+            selectClause,fromClause,whereClause = parseStatement(stm)
+        except:
+            print "Error: parse statement"
+            sys.exit()
 
-        panel, schemas, table = parseFrom(fromClause)
+        # panel: a dictionary that stores dataframes
+        # schemas: a map that map table to a map which maps attributes to datatype
+        # table: a list of table names
+        try:
+            selectClause, panel, schemas, tables = readCSVFile(selectClause,fromClause)
+        except:
+            print "Error: read CSV file"
+            sys.exit()
 
+        # query: a list of condition with format of tableName.attrName <op> value
+        try:
+            query = parseConditions(whereClause, tables, schemas)
+        except:
+            print "Error: check Condition"
+            sys.exit()
 
-
-
-        # query is condition in WHERE clause as a list
-        query = checkConditions(conds, table, schemas, panel)
 
         #createIndex(query, panel, relations)
 
@@ -40,21 +53,23 @@ if __name__=="__main__":
         print "---------------------------------------------"
         start_time = time.time() #used for running time
 
+        try:
+            where_df, temp_panel = doWHERE(query, panel)
+        except:
+            print "Error: querying WHERE clause"
+            sys.exit()
 
-
-        # attrs: attributes in SELECT clause
-        # relations: tables name in FROM clause
-        # query: condition in WHERE clause as a list
-        where_df = doWHERE(query, panel, table)
-        select_df = doSELECT(where_df, attrs)
-        print select_df
-
-
+        try:
+            select_df = doSELECT(where_df, selectClause)
+            print select_df
+        except:
+            print "Error: project SELECT clause"
+            sys.exit()
 
 
         #total_time = time.time()-start_time #total running time, in seconds
         print "---------------------------------------------"
-        print "| running time:",time.time()-start_time,"seconds     |"
+        print "| Querying time:",time.time()-start_time,"seconds     |"
         print "---------------------------------------------"
 
 
