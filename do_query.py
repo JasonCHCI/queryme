@@ -17,8 +17,12 @@ def doSELECT(df, attrs):
             attr = attr.split('.')
             if len(attr) == 2:
                 columns.append(attr[1])
+                #columns.append(attr[1].split('00')[1])
+                #df.rename(columns={attr[1]: attr[1].split('00')[1]}, inplace=True)
             else:
                 columns.append(attr[0])
+                # columns.append(attr[0].split('00')[1])
+                # df.rename(columns={attr[0]: attr[0].split('00')[1]}, inplace=True)
     df = df[columns]
     return df
 

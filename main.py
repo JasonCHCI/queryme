@@ -38,9 +38,11 @@ if __name__=="__main__":
             print "Error: read CSV file"
             sys.exit()
 
-        # query: a list of condition with format of tableName.attrName <op> value
+        # query: a list of conditions with format of tableName.attrName <op> value or 'AND' or parenthesis
+        # attrs: a list of attributes in WHERE clause
         try:
-            query = parseConditions(whereClause, tables, schemas)
+            query,attrs = parseConditions(whereClause, tables, schemas)
+            panel = projection(panel,attrs,selectClause)
         except:
             print "Error: check Condition"
             sys.exit()
@@ -61,6 +63,8 @@ if __name__=="__main__":
 
         try:
             select_df = doSELECT(where_df, selectClause)
+            #set_option('display.max_columns', None)
+            #set_option('display.max_rows', None)
             print select_df
         except:
             print "Error: project SELECT clause"

@@ -52,6 +52,7 @@ def readCSVFile(attrs, fileTokens):
 #             schemas - list of schemas
 # @return: modified conds
 def parseConditions(conds,tables,schemas):
+    attrs = []
     for i in range(len(conds)):
         cond  = conds[i]
         if cond in (' AND NOT ', ' OR NOT ', 'NOT ', ' AND ', ' OR '):
@@ -66,6 +67,7 @@ def parseConditions(conds,tables,schemas):
                 for col in schemas[table]:
                     if tokens[0] == col.split('00')[1]:
                         conds[i] = table+'.'+table+'00'+tokens[0]
+                        attrs.append(conds[i])
         # If Condition is A <op> B, tokens=[A,<op>,B]
         elif len(tokens)==3:
             stringA = ''
@@ -80,22 +82,39 @@ def parseConditions(conds,tables,schemas):
                     for col in schemas[table]:
                         if a[0] == col.split('00')[1]:
                             stringA = table + '.' + table+'00'+a[0]
+                            attrs.append(stringA)
             else:
                 stringA = a[0]+'.' + a[0] + '00' + a[1]
+                attrs.append(stringA)
             # if B is attribute,find data type. Directly find datatype
             if len(b)==1:
                 for table in tables:
                     for col in schemas[table]:
                         if len(col.split('00'))>1 and b[0] == col.split('00')[1]:
                             stringB = table + '.' + table+'00'+a[0]
+                            attrs.append(stringB)
                 else:
                     stringB = b[0]
             else:
                 stringB = b[0] + '.' + b[0] + '00' + b[1]
+                attrs.append(stringB)
             conds[i] = stringA+' '+op+' '+stringB
     #print conds
-    return conds
+    return conds,attrs
 
+def projection(panel,attrs,selectClause):
+    if selectClause[0] =='*': return panel
+    attrs.extend(selectClause)
+    dict = {}
+    for a in attrs:
+        a = a.split('.')
+        if len(a)==2: table,attr=a[0],a[1]
+        else: table,attr=a[0].split('00')[0],a[0]
+        if table not in dict: dict[table]=[attr]
+        elif attr not in dict[table]: dict[table].append(attr)
+    for table in dict:
+        panel[table] = panel[table][dict[table]]
+    return panel
 
 def createIndex(query,panel,relations):
     dfA = None
