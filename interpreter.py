@@ -47,7 +47,6 @@ def readCSVFile(attrs, fileTokens):
     return attrs, panel, schemas, table
 
 # Conditions should be like A<OP>B, A is an attribute and B can be attribute or value
-<<<<<<< HEAD
 # @paremeter: conds - condition list in WHERE clause
 #             tables- list of tables name
 #             schemas - list of schemas
@@ -57,19 +56,6 @@ def parseConditions(conds,tables,schemas):
         cond  = conds[i]
         if cond in (' AND NOT ', ' OR NOT ', 'NOT ', ' AND ', ' OR '):
             conds[i:i + 1] = cond.split()
-=======
-# <OP> is one of =, >, <, <>, >= and <= when A and B are all data types except Boolean
-# <OP> is one of AND, OR, NOT when A and B are Boolean.
-# <OP> can be LIKE operator for text
-def checkConditions(conditions,tables,schemas,panel):
-    conds = re.split('( AND NOT | OR NOT | AND | OR |NOT |(|))',conditions)
-    statement = []
-    for cond in conds:
-        if cond=='':
-            continue
-        if cond in (' AND NOT ',' OR NOT ','NOT ',' AND ',' OR ','(',')'):
-            statement.extend(cond.split())
->>>>>>> 94bf3bf75d396e3140e1bed9da7e8e0e30c58cd0
             continue
         tempc = ''.join(re.findall('"[^"]*"|\'[^\']*\'|[^"\'\s]+',cond)) #remove all empty spaces except string quotes
         tokens = re.split('(<>|>=|<=|=|<|>|LIKE)',tempc) #split condition 'A <op> B' to [A,<op>,B]
