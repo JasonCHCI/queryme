@@ -57,24 +57,31 @@ if __name__=="__main__":
 
         try:
             where_df, temp_panel = doWHERE(query, panel)
+            #print schemas
         except:
             print "Error: querying WHERE clause"
             sys.exit()
 
+        select_df = None
         try:
             select_df = doSELECT(where_df, selectClause)
-            #set_option('display.max_columns', None)
-            #set_option('display.max_rows', None)
-            print select_df
+            # set_option('display.max_columns', None)
+            # set_option('display.max_rows', None)
+            # total_time = time.time()-start_time #total running time, in seconds
+            print  "Querying finished"
+            print "---------------------------------------------"
+            print "| Querying time:", time.time() - start_time, "seconds     |"
+            print "---------------------------------------------"
+            print  "Printing Now..."
+            print "---------------------------------------------"
+
         except:
             print "Error: project SELECT clause"
             sys.exit()
 
+        if select_df is not None:
+            print select_df
 
-        #total_time = time.time()-start_time #total running time, in seconds
-        print "---------------------------------------------"
-        print "| Querying time:",time.time()-start_time,"seconds     |"
-        print "---------------------------------------------"
 
 
 

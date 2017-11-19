@@ -87,7 +87,7 @@ def doWHERE(query, panel):
             elif op <> 'LIKE': # A <op> B where <op> is not 'LIKE'
                 # If A is attribute and B is value
                 if valueB <> None:
-
+                    #print valueB
                     stm = attrA + op + valueB if notOP <> 'NOT' else 'not ' + attrA + op + valueB
                     #print dfA
                     df = dfA.query(stm)
