@@ -24,7 +24,6 @@ def doSELECT(df, attrs,distinct):
                 # columns.append(attr[0].split('00')[1])
                 # df.rename(columns={attr[0]: attr[0].split('00')[1]}, inplace=True)
     if distinct:
-        print df.columns
         df = df[columns].drop_duplicates()
     else:
         df = df[columns]
@@ -64,7 +63,6 @@ def doWHERE(query, panel):
             notOP = cond[0]
             continue
         else:
-            print cond[0]
             tableA, attrA = cond[0].split('.')
             tableB, attrB, valueB = None, None, None
             op = None
