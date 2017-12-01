@@ -23,11 +23,11 @@ if __name__=="__main__":
         # selectClause: attribute in SELECT clause as a list [a1,a2,a3,...]
         # fromClause: tables name in FROM clause as a list [t1,t2,t3..] or [table1 t1, table2 2, table3 t3,...]
         # whereClause: conditions in WHERE clause as a list [c1,'AND',c2,'OR',C3,...]
-        try:
-            selectClause,fromClause,whereClause = parseStatement(stm)
-        except:
-            print "Error: parse statement"
-            sys.exit()
+        # try:
+        selectClause,fromClause,whereClause,distinct = parseStatement(stm)
+        # except:
+        #     print "Error: parse statement"
+        #     sys.exit()
 
         start_time = time.time() #used for running time
         # panel: a dictionary that stores dataframes
@@ -65,7 +65,7 @@ if __name__=="__main__":
 
         select_df = None
         try:
-            select_df = doSELECT(where_df, selectClause)
+            select_df = doSELECT(where_df, selectClause,distinct)
             # set_option('display.max_columns', None)
             # set_option('display.max_rows', None)
             # total_time = time.time()-start_time #total running time, in seconds

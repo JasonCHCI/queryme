@@ -9,13 +9,18 @@ import ast
 # @return attributes list, tables list, condition list
 def parseStatement(statement):
     tokens = re.split('SELECT | FROM | WHERE ', statement)
+    distinct = False
     if tokens[0]=='': tokens=tokens[1:]
+    if 'DISTINCT' in tokens[0]:
+        select = tokens[0].split('DISTINCT')
+        distinct = True
+        tokens[0]=''.join(select)
     attrs = [x.strip() for x in tokens[0].split(',')]
     tables= tokens[1].split(',')
     conds = []
     if len(tokens)==3:
         conds = filter(None,re.split('( AND NOT | OR NOT | AND | OR |NOT |\(|\))',tokens[2]))
-    return attrs,tables,conds
+    return attrs,tables,conds,distinct
 
 # @parameter: fileTokens is the list parsed from FROM clause, that stores all csv files we are going to read
 # @return: panel that store dataframes, schemas that stores datatypes, tables that stores table names

@@ -8,7 +8,7 @@ import re
 # @parameter: df- final dataframe after querying from WHERE clause
 #             attrs - attributes we are going to project
 # @return: the dataframe after projection
-def doSELECT(df, attrs):
+def doSELECT(df, attrs,distinct):
     columns = []
     if attrs[0] == '*':
         return df
@@ -23,7 +23,10 @@ def doSELECT(df, attrs):
                 columns.append(attr[0])
                 # columns.append(attr[0].split('00')[1])
                 # df.rename(columns={attr[0]: attr[0].split('00')[1]}, inplace=True)
-    df = df[columns]
+    if distinct:
+        df = df[columns].drop_duplicates()
+    else:
+        df = df[columns]
     return df
 
 
