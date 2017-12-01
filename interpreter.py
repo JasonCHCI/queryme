@@ -23,15 +23,21 @@ def readCSVFile(attrs, fileTokens):
     table = []
     panel = {}
     schemas = {}
+    #store = read_hdf('store.h5')
+
     for i in range(len(fileTokens)):
         file = fileTokens[i].split()
         df = read_csv(file[0].lstrip(), parse_dates=True, infer_datetime_format=True)
         table_name = file[0].lstrip().split(".")[0]
+        #df = store[table_name]
+        #df = read_hdf('store.h5',table_name)
         if len(file) > 1:
             table_name = file[1].lstrip()
+
         table.append(table_name)
         schemas[table_name] = {}
         panel[table_name] = df
+
         for col in df.columns:
             new_col = table_name+'00'+col
             panel[table_name].rename(columns={col:new_col},inplace=True)
@@ -39,7 +45,7 @@ def readCSVFile(attrs, fileTokens):
             if col in attrs:
                 attrs.remove(col)
                 attrs.append(new_col)
-        #print panel[table_name].columns
+
     for i in range(len(attrs)):
         if len(attrs[i].split('.'))==2:
             attrs[i] = '00'.join(attrs[i].split('.'))

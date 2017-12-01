@@ -28,24 +28,24 @@ if __name__=="__main__":
         except:
             print "Error: parse statement"
             sys.exit()
-
+        start_time = time.time() #used for running time
         # panel: a dictionary that stores dataframes
         # schemas: a map that map table to a map which maps attributes to datatype
         # table: a list of table names
-        try:
-            selectClause, panel, schemas, tables = readCSVFile(selectClause,fromClause)
-        except:
-            print "Error: read CSV file"
-            sys.exit()
+        # try:
+        selectClause, panel, schemas, tables = readCSVFile(selectClause,fromClause)
+        # except:
+        #     print "Error: read CSV file"
+        #     sys.exit()
 
         # query: a list of conditions with format of tableName.attrName <op> value or 'AND' or parenthesis
         # attrs: a list of attributes in WHERE clause
-        try:
-            query,attrs = parseConditions(whereClause, tables, schemas)
-            panel = projection(panel,attrs,selectClause)
-        except:
-            print "Error: check Condition"
-            sys.exit()
+        # try:
+        query,attrs = parseConditions(whereClause, tables, schemas)
+        panel = projection(panel,attrs,selectClause)
+        # except:
+        #     print "Error: check Condition"
+        #     sys.exit()
 
 
         #createIndex(query, panel, relations)
@@ -53,7 +53,7 @@ if __name__=="__main__":
         print "---------------------------------------------"
         print "| Querying..."
         print "---------------------------------------------"
-        start_time = time.time() #used for running time
+        
 
         try:
             where_df, temp_panel = doWHERE(query, panel)
