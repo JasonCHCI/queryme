@@ -23,14 +23,15 @@ def readCSVFile(attrs, fileTokens):
     table = []
     panel = {}
     schemas = {}
-    #store = read_hdf('store.h5')
+    #store = HDFStore('store.h5')
 
     for i in range(len(fileTokens)):
         file = fileTokens[i].split()
-        df = read_csv(file[0].lstrip(), parse_dates=True, infer_datetime_format=True)
+        #df = read_csv(file[0].lstrip(), parse_dates=True, infer_datetime_format=True)
         table_name = file[0].lstrip().split(".")[0]
         #df = store[table_name]
         #df = read_hdf('store.h5',table_name)
+        df = read_feather(table_name+'.feather')
         if len(file) > 1:
             table_name = file[1].lstrip()
 
@@ -38,13 +39,15 @@ def readCSVFile(attrs, fileTokens):
         schemas[table_name] = {}
         panel[table_name] = df
 
+        panel[table_name].columns = [table_name+'00'+col for col in panel[table_name].columns]
         for col in df.columns:
-            new_col = table_name+'00'+col
-            panel[table_name].rename(columns={col:new_col},inplace=True)
-            schemas[table_name][new_col] = panel[table_name][new_col].dtype
-            if col in attrs:
-                attrs.remove(col)
-                attrs.append(new_col)
+            #new_col = table_name+'00'+col
+            #panel[table_name].rename(columns={col:new_col},inplace=True)
+            #schemas[table_name][new_col] = panel[table_name][new_col].dtype
+            schemas[table_name][col] = panel[table_name][col].dtype
+            # if col in attrs:
+            #     attrs.remove(col)
+            #     attrs.append(new_col)
 
     for i in range(len(attrs)):
         if len(attrs[i].split('.'))==2:
@@ -74,6 +77,8 @@ def parseConditions(conds,tables,schemas):
                     if tokens[0] == col.split('00')[1]:
                         conds[i] = table+'.'+table+'00'+tokens[0]
                         attrs.append(conds[i])
+        elif len(tokens)==1 and len(tokens[0].split('.'))==2:
+            pass #TODO:
         # If Condition is A <op> B, tokens=[A,<op>,B]
         elif len(tokens)==3:
             stringA = ''

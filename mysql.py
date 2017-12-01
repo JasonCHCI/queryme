@@ -28,6 +28,7 @@ if __name__=="__main__":
         except:
             print "Error: parse statement"
             sys.exit()
+
         start_time = time.time() #used for running time
         # panel: a dictionary that stores dataframes
         # schemas: a map that map table to a map which maps attributes to datatype
