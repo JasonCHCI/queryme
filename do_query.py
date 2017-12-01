@@ -24,6 +24,7 @@ def doSELECT(df, attrs,distinct):
                 # columns.append(attr[0].split('00')[1])
                 # df.rename(columns={attr[0]: attr[0].split('00')[1]}, inplace=True)
     if distinct:
+        print df.columns
         df = df[columns].drop_duplicates()
     else:
         df = df[columns]
@@ -33,15 +34,17 @@ def doSELECT(df, attrs,distinct):
 # WHERE clause does the cartesian product of all relations
 def doWHERE(query, panel):
     temp_panel = copy(panel)
-    final_df = None
+    final_df = panel.itervalues().next()
     preOP = None
     notOP = None
     for i in range(len(query)):
         #cond = shlex.split(query[i])
+        if i>= len(query):
+            break
         cond = re.findall('"[^"]*"|\'[^\']*\'|[^"\'\s]+', query[i])
         if cond[0] == '(':
             subquery = query[i+1:query[::-1].index(')')-1]
-            sub_query_result, sub_temp_panel = doWHERE(subquery, panel)
+            sub_query_result = doWHERE(subquery, panel)
             if preOP == 'AND':
                 final_df = merge(final_df, sub_query_result)
             else:
@@ -50,7 +53,10 @@ def doWHERE(query, panel):
                 query = query[0:i] + query[query[::-1].index(')')+1:]
                 continue
             else:
+                print "illegal"
                 return final_df
+        elif cond[0] == ')':
+            continue
         elif cond[0] in ('AND', 'OR'):
             preOP = cond[0]
             continue
@@ -58,6 +64,7 @@ def doWHERE(query, panel):
             notOP = cond[0]
             continue
         else:
+            print cond[0]
             tableA, attrA = cond[0].split('.')
             tableB, attrB, valueB = None, None, None
             op = None
@@ -130,7 +137,7 @@ def doWHERE(query, panel):
 
             notOP = None
             final_df = df
-    return final_df,temp_panel
+    return final_df
 
 
 

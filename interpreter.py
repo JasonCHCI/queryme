@@ -43,9 +43,12 @@ def readCSVFile(attrs, fileTokens):
         table.append(table_name)
         schemas[table_name] = {}
         panel[table_name] = df
-
-        panel[table_name].columns = [table_name+'00'+col for col in panel[table_name].columns]
         for col in df.columns:
+            if col in attrs:
+                attrs.remove(col)
+                attrs.append(table_name+'00'+col)
+        panel[table_name].columns = [table_name+'00'+col for col in panel[table_name].columns]
+        for col in panel[table_name].columns:
             #new_col = table_name+'00'+col
             #panel[table_name].rename(columns={col:new_col},inplace=True)
             #schemas[table_name][new_col] = panel[table_name][new_col].dtype

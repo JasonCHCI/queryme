@@ -29,7 +29,6 @@ if __name__=="__main__":
         #     print "Error: parse statement"
         #     sys.exit()
 
-        start_time = time.time() #used for running time
         # panel: a dictionary that stores dataframes
         # schemas: a map that map table to a map which maps attributes to datatype
         # table: a list of table names
@@ -55,30 +54,30 @@ if __name__=="__main__":
         print "| Querying..."
         print "---------------------------------------------"
         
-
-        try:
-            where_df, temp_panel = doWHERE(query, panel)
+        start_time = time.time() #used for running time
+        #try:
+        where_df  = doWHERE(query, panel)
             #print schemas
-        except:
-            print "Error: querying WHERE clause"
-            sys.exit()
+        # except:
+        #     print "Error: querying WHERE clause"
+        #     sys.exit()
 
         select_df = None
-        try:
-            select_df = doSELECT(where_df, selectClause,distinct)
-            # set_option('display.max_columns', None)
-            # set_option('display.max_rows', None)
-            # total_time = time.time()-start_time #total running time, in seconds
-            print  "Querying finished"
-            print "---------------------------------------------"
-            print "| Querying time:", time.time() - start_time, "seconds     |"
-            print "---------------------------------------------"
-            print  "Printing Now..."
-            print "---------------------------------------------"
+        # try:
+        select_df = doSELECT(where_df, selectClause,distinct)
+        # set_option('display.max_columns', None)
+        # set_option('display.max_rows', None)
+        # total_time = time.time()-start_time #total running time, in seconds
+        print  "Querying finished"
+        print "---------------------------------------------"
+        print "| Querying time:", time.time() - start_time, "seconds     |"
+        print "---------------------------------------------"
+        print  "Printing Now..."
+        print "---------------------------------------------"
 
-        except:
-            print "Error: project SELECT clause"
-            sys.exit()
+        # except:
+        #     print "Error: project SELECT clause"
+        #     sys.exit()
 
         if select_df is not None:
             print select_df
