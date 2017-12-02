@@ -76,49 +76,73 @@ def parseConditions(conds,tables,schemas):
             conds[i:i + 1] = cond.split()
             continue
         tempc = ''.join(re.findall('"[^"]*"|\'[^\']*\'|[^"\'\s]+',cond)) #remove all empty spaces except string quotes
-        tokens = re.split('(<>|>=|<=|=|<|>|LIKE)',tempc) #split condition 'A <op> B' to [A,<op>,B]
-        # If condition is single boolean attribute
-        if len(tokens)==1 and len(tokens[0].split('.'))==1:
-            conds[i]=tokens[0]
-            for table in tables:
-                for col in schemas[table]:
-                    if tokens[0] == col.split('00')[1]:
-                        conds[i] = table+'.'+table+'00'+tokens[0]
-                        attrs.append(conds[i])
-        elif len(tokens)==1 and len(tokens[0].split('.'))==2:
-            pass #TODO:
-        # If Condition is A <op> B, tokens=[A,<op>,B]
-        elif len(tokens)==3:
-            stringA = ''
-            stringB = ''
-            a = tokens[0].split('.')# attribute A may be 'table.att' or atomic 'att'
-            b = tokens[2].split('.')# attribute B may be 'table.att' or atomic 'att' or single value
-            op = tokens[1]
-            if op == '=': op = '=='
-            # if A is attribute,find data type. Otherwise return
+        # split condition 'A <op> B' to [A,<op>,B]
+        # 'A <op> B' where B may include '+','-','*','/'
+        tokens = re.split('(<>|>=|<=|=|<|>|LIKE|\s*[+*/-])',tempc) 
+        string = ''
+        for token in tokens:
+            a = token.split('.')
             if len(a)==1:
-                for table in tables:
-                    for col in schemas[table]:
-                        if a[0] == col.split('00')[1]:
-                            stringA = table + '.' + table+'00'+a[0]
-                            attrs.append(stringA)
-            else:
-                stringA = a[0]+'.' + a[0] + '00' + a[1]
-                attrs.append(stringA)
-            # if B is attribute,find data type. Directly find datatype
-            if len(b)==1:
-                for table in tables:
-                    for col in schemas[table]:
-                        if len(col.split('00'))>1 and b[0] == col.split('00')[1]:
-                            stringB = table + '.' + table+'00'+a[0]
-                            attrs.append(stringB)
+                if a[0]=='=': 
+                    string+=' '+'=='+' '
+                elif a[0] in ('<>','>=','<=','<','>','LIKE','*','+','-','/'):
+                    string+=' '+a[0]+' '
                 else:
-                    stringB = b[0]
-            else:
-                stringB = b[0] + '.' + b[0] + '00' + b[1]
-                attrs.append(stringB)
-            conds[i] = stringA+' '+op+' '+stringB
-    #print conds
+                    value = True
+                    for table in tables:
+                        for col in schemas[table]:
+                            if a[0] == col.split('00')[1]:
+                                string += table+'.'+table+'00'+a[0]
+                                attrs.append(table+'.'+table+'00'+a[0])
+                                value=False
+                    if value:
+                        string +=a[0]
+            elif len(a)==2:
+                string += a[0]+'.' + a[0] + '00' + a[1]
+                attrs.append(a[0]+'.' + a[0] + '00' + a[1])
+        conds[i]=string
+        # # If condition is single boolean attribute
+        # if len(tokens)==1 and len(tokens[0].split('.'))==1:
+        #     conds[i]=tokens[0]
+        #     for table in tables:
+        #         for col in schemas[table]:
+        #             if tokens[0] == col.split('00')[1]:
+        #                 conds[i] = table+'.'+table+'00'+tokens[0]
+        #                 attrs.append(conds[i])
+        # elif len(tokens)==1 and len(tokens[0].split('.'))==2:
+        #     pass #TODO:
+        # # If Condition is A <op> B, tokens=[A,<op>,B]
+        # elif len(tokens)==3:
+        #     stringA = ''
+        #     stringB = ''
+        #     a = tokens[0].split('.')# attribute A may be 'table.att' or atomic 'att'
+        #     b = tokens[2].split('.')# attribute B may be 'table.att' or atomic 'att' or single value
+        #     op = tokens[1]
+        #     if op == '=': op = '=='
+        #     # if A is attribute,find data type. Otherwise return
+        #     if len(a)==1:
+        #         for table in tables:
+        #             for col in schemas[table]:
+        #                 if a[0] == col.split('00')[1]:
+        #                     stringA = table + '.' + table+'00'+a[0]
+        #                     attrs.append(stringA)
+        #     else:
+        #         stringA = a[0]+'.' + a[0] + '00' + a[1]
+        #         attrs.append(stringA)
+        #     # if B is attribute,find data type. Directly find datatype
+        #     if len(b)==1:
+        #         for table in tables:
+        #             for col in schemas[table]:
+        #                 if len(col.split('00'))>1 and b[0] == col.split('00')[1]:
+        #                     stringB = table + '.' + table+'00'+a[0]
+        #                     attrs.append(stringB)
+        #         else:
+        #             stringB = b[0]
+        #     else:
+        #         stringB = b[0] + '.' + b[0] + '00' + b[1]
+        #         attrs.append(stringB)
+        #     conds[i] = stringA+' '+op+' '+stringB
+
     return conds,attrs
 
 def projection(panel,attrs,selectClause):

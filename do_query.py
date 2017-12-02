@@ -63,16 +63,23 @@ def doWHERE(query, panel):
             notOP = cond[0]
             continue
         else:
-            tableA, attrA = cond[0].split('.')
-            tableB, attrB, valueB = None, None, None
-            op = None
-            if len(cond)==3:
-                op = cond[1]
-                tempB = cond[2].split('.') # A <op> B where B might be value or table.attribute
-                if len(tempB) == 2:
-                    tableB, attrB = tempB
+            tableA, attrA = None,None
+            tableB, attrB = None, None
+            op = ''
+            stm = ''
+
+            for token in cond:
+                a = token.split('.')
+                if len(a)==2 and tableA==None and attrA==None:
+                    tableA, attrA = a
+                    stm+=attrA
+                elif len(a)==2 and tableB==None and attrB==None:
+                    tableB, attrB = a
+                    stm+=attrB
                 else:
-                    valueB = tempB[0]
+                    if token in ('==','<>','>=','<=','<','>','LIKE'):
+                        op=token
+                    stm+=token
             if preOP == 'AND':
                 listA = [key for key in temp_panel if tableA in key]
                 listB = [key for key in temp_panel if tableB is not None and tableB in key]
@@ -86,35 +93,27 @@ def doWHERE(query, panel):
                 dfA = panel[tableA]
                 if tableB is not None:
                     dfB = panel[tableB]
-
             if len(cond)==1:
-                stm = attrA if notOP <> 'NOT' else attrA + '== False'
+                stm = attrA if notOP != 'NOT' else attrA + '== False'
                 df = dfA.query(stm)
             elif op == 'LIKE':
-                df = doLIKE(dfA, tempB[0], attrA, notOP)
-            elif op <> 'LIKE': # A <op> B where <op> is not 'LIKE'
-                # If A is attribute and B is value
-                if valueB <> None:
-                    #print valueB
-                    stm = attrA + op + valueB if notOP <> 'NOT' else 'not ' + attrA + op + valueB
-                    #print dfA
-                    df = dfA.query(stm)
-                # If A and B are all attribute and at the same table
-                elif tableA == tableB:
-                    stm = attrA + op + attrB if notOP <> 'NOT' else 'not ' + attrA + op + attrB
-                    df = dfA.query(stm)
-                # If A and B are all attribute and at different tables
-                elif tableA <> tableB:
+                df = doLIKE(dfA, cond[2], attrA, notOP)
+            elif op != 'LIKE':
+                if tableA==tableB or tableB==None:
+                    if notOP!='NOT':
+                        df = dfA.query(stm)
+                    else:
+                        df = dfA.query('not'+stm)
+                elif tableA!=tableB and tableB!=None:
                     if (op == '==' and notOP is None) or (op == '<>' and notOP == 'NOT'):
                         df = merge(dfB, dfA, left_on=attrB, right_on=attrA)
                     else:
                         dfB['key'] = 0
                         dfA['key'] = 0
                         df = merge(dfB, dfA, on='key')
-                        stm = attrA + op + attrB if notOP <> 'NOT' else 'not ' + attrA + op + attrB
-                        df = df.query(stm)
+                        df = df.query(stm) if notOP != 'NOT' else df.query('not'+stm)
             if preOP == 'OR':
-                if tableB <> None: #Very unlikely to be executed
+                if tableB != None: #Very unlikely to be executed
                     df = concat([temp_panel[tableB + tableA], df]).drop_duplicates()
                     temp_panel[tableA + tableB] = df
                     temp_panel.pop(tableA,None)
@@ -126,15 +125,86 @@ def doWHERE(query, panel):
                     df = concat([temp_panel[tableA], df]).drop_duplicates()
                     temp_panel[tableA] = df
             else:
-                if tableB <> None:
+                if tableB != None:
                     temp_panel[tableA + tableB] = df
                     temp_panel.pop(tableA, None)
                     temp_panel.pop(tableB, None)
                 else:
                     temp_panel[tableA] = df
-
             notOP = None
             final_df = df
+
+            # tableA, attrA = cond[0].split('.')
+            # tableB, attrB, valueB = None, None, None
+            # op = None
+            # if len(cond)==3:
+            #     op = cond[1]
+            #     tempB = cond[2].split('.') # A <op> B where B might be value or table.attribute
+            #     if len(tempB) == 2:
+            #         tableB, attrB = tempB
+            #     else:
+            #         valueB = tempB[0]
+            # if preOP == 'AND':
+            #     listA = [key for key in temp_panel if tableA in key]
+            #     listB = [key for key in temp_panel if tableB is not None and tableB in key]
+            #     if listA:
+            #         tableA = listA[0]
+            #         dfA = temp_panel[tableA]
+            #     if listB:
+            #         tableB = listB[0]
+            #         dfB = temp_panel[tableB]
+            # else: # preOP == 'OR'
+            #     dfA = panel[tableA]
+            #     if tableB is not None:
+            #         dfB = panel[tableB]
+            # if len(cond)==1:
+            #     stm = attrA if notOP != 'NOT' else attrA + '== False'
+            #     df = dfA.query(stm)
+            # elif op == 'LIKE':
+            #     df = doLIKE(dfA, tempB[0], attrA, notOP)
+            # elif op != 'LIKE': # A <op> B where <op> is not 'LIKE'
+            #     # If A is attribute and B is value
+            #     if valueB != None:
+            #         #print valueB
+            #         stm = attrA + op + valueB if notOP != 'NOT' else 'not ' + attrA + op + valueB
+            #         #print dfA
+            #         df = dfA.query(stm)
+            #     # If A and B are all attribute and at the same table
+            #     elif tableA == tableB:
+            #         stm = attrA + op + attrB if notOP != 'NOT' else 'not ' + attrA + op + attrB
+            #         df = dfA.query(stm)
+            #     # If A and B are all attribute and at different tables
+            #     elif tableA != tableB:
+            #         if (op == '==' and notOP is None) or (op == '<>' and notOP == 'NOT'):
+            #             df = merge(dfB, dfA, left_on=attrB, right_on=attrA)
+            #         else:
+            #             dfB['key'] = 0
+            #             dfA['key'] = 0
+            #             df = merge(dfB, dfA, on='key')
+            #             stm = attrA + op + attrB if notOP != 'NOT' else 'not ' + attrA + op + attrB
+            #             df = df.query(stm)
+            # if preOP == 'OR':
+            #     if tableB != None: #Very unlikely to be executed
+            #         df = concat([temp_panel[tableB + tableA], df]).drop_duplicates()
+            #         temp_panel[tableA + tableB] = df
+            #         temp_panel.pop(tableA,None)
+            #         temp_panel.pop(tableB,None)
+            #     else:
+            #         # temp_panel[tableA]=merge(temp_panel[tableA].reset_index(),df.reset_index(),how='outer').set_index(attrA)
+            #         #print temp_panel[tableA]
+            #         #print df
+            #         df = concat([temp_panel[tableA], df]).drop_duplicates()
+            #         temp_panel[tableA] = df
+            # else:
+            #     if tableB != None:
+            #         temp_panel[tableA + tableB] = df
+            #         temp_panel.pop(tableA, None)
+            #         temp_panel.pop(tableB, None)
+            #     else:
+            #         temp_panel[tableA] = df
+
+            # notOP = None
+            # final_df = df
     return final_df
 
 
@@ -150,54 +220,5 @@ def doLIKE(df, b, attA, noop):
         df = df[~df[attA].str.match(regex_pat, na=False)]
     return df
 
-
-#
-# def doCond(cond, df):
-#     # to do: given a condition, apply it and return the filtered df
-#     return result_df
-#
-#
-# def doOpOneTable(op, cond1, cond2, df1, df2):
-#     # to do: given a op and two conditions, apply them and return the result df
-#     return result_df
-
-
-# def doOpTwoTable(op, cond1, cond2, df1, df2):
-#     # to do: given a op and two conditions, apply them and return the result df
-#     # if cond1 and cond2 are from two tables, then first join, then return result df
-#     return result_df
-
-
-# def doJoin(cond1, cond2, df1, df2):
-#     # to do: given table1.attribute1, table2.attribute2, do join and return the joined df
-#     return joined_df
-
-#
-#
-# def doWhere_new(query_list, df_list):
-#     new_query_list = []
-#     new_df_list = []
-#     # do parenthesis first
-#     for i in xrange(len(query_list)):
-#         query = query_list[i]
-#         df = df_list[i]
-#         if not query.startwith("("):
-#             new_query_list.append(query)
-#             new_df_list.append(df)
-#
-#         if query.startwith("("):
-#         # to do: find the right parentheis and remove both left and right and pass the trimmed query recursively
-#             parenthesis_query_list = ["xxxx"]
-#             parenthesis_df_list = ["xxxx"]
-#             filtered_parenthesis_df = doWhere_new(parenthesis_query_list, parenthesis_df_list)
-#             filtered_parenthesis_query = "filtered"
-#             new_query_list.append(filtered_parenthesis_query)
-#             new_df_list.append(filtered_parenthesis_df)
-#
-#     for i in xrange(len(new_query_list)):
-#         query = query_list[i]
-#         df = df_list[i]
-#         # no parenthesis, do condition by sequence and return df
-#         return result_df
 
 
