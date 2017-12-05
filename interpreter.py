@@ -70,10 +70,12 @@ def readCSVFile(attrs, fileTokens):
 # @return: modified conds
 def parseConditions(conds,tables,schemas):
     attrs = []
+    conditions =[]
     for i in range(len(conds)):
         cond  = conds[i]
         if cond in (' AND NOT ', ' OR NOT ', 'NOT ', ' AND ', ' OR '):
-            conds[i:i + 1] = cond.split()
+            #conds[i:i + 1] = cond.split()
+            conditions.extend(cond.split())
             continue
         tempc = ''.join(re.findall('"[^"]*"|\'[^\']*\'|[^"\'\s]+',cond)) #remove all empty spaces except string quotes
         # split condition 'A <op> B' to [A,<op>,B]
@@ -100,7 +102,8 @@ def parseConditions(conds,tables,schemas):
             elif len(a)==2:
                 string += a[0]+'.' + a[0] + '00' + a[1]
                 attrs.append(a[0]+'.' + a[0] + '00' + a[1])
-        conds[i]=string
+        #conds[i]=string
+        conditions.append(string)
         # # If condition is single boolean attribute
         # if len(tokens)==1 and len(tokens[0].split('.'))==1:
         #     conds[i]=tokens[0]
@@ -143,7 +146,7 @@ def parseConditions(conds,tables,schemas):
         #         attrs.append(stringB)
         #     conds[i] = stringA+' '+op+' '+stringB
 
-    return conds,attrs
+    return conditions,attrs
 
 def projection(panel,attrs,selectClause):
     if selectClause[0] =='*': return panel

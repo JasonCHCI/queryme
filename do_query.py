@@ -46,8 +46,10 @@ def doWHERE(query, panel):
             sub_query_result = doWHERE(subquery, panel)
             if preOP == 'AND':
                 final_df = merge(final_df, sub_query_result)
-            else:
+            elif preOP == 'OR':
                 final_df = concat([final_df, sub_query_result]).drop_duplicates()
+            else:
+                final_df = sub_query_result
             if query[::-1].index(')') < len(query) - 1:
                 query = query[0:i] + query[query[::-1].index(')')+1:]
                 continue
@@ -103,7 +105,7 @@ def doWHERE(query, panel):
                     if notOP!='NOT':
                         df = dfA.query(stm)
                     else:
-                        df = dfA.query('not'+stm)
+                        df = dfA.query('not '+stm)
                 elif tableA!=tableB and tableB!=None:
                     if (op == '==' and notOP is None) or (op == '<>' and notOP == 'NOT'):
                         df = merge(dfB, dfA, left_on=attrB, right_on=attrA)
@@ -111,7 +113,7 @@ def doWHERE(query, panel):
                         dfB['key'] = 0
                         dfA['key'] = 0
                         df = merge(dfB, dfA, on='key')
-                        df = df.query(stm) if notOP != 'NOT' else df.query('not'+stm)
+                        df = df.query(stm) if notOP != 'NOT' else df.query('not '+stm)
             if preOP == 'OR':
                 if tableB != None: #Very unlikely to be executed
                     df = concat([temp_panel[tableB + tableA], df]).drop_duplicates()

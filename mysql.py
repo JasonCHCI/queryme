@@ -56,8 +56,7 @@ if __name__=="__main__":
         
         start_time = time.time() #used for running time
         try:
-            where_df  = doWHERE(query, panel)
-            print schemas
+            where_df = doWHERE(query, panel)
         except:
             print "Error: querying WHERE clause"
             sys.exit()
