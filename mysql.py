@@ -67,11 +67,11 @@ if __name__=="__main__":
             # set_option('display.max_columns', None)
             # set_option('display.max_rows', None)
             # total_time = time.time()-start_time #total running time, in seconds
-            print  "Querying finished"
+            print "Querying finished"
             print "---------------------------------------------"
             print "| Querying time:", time.time() - start_time, "seconds     |"
             print "---------------------------------------------"
-            print  "Printing Now..."
+            print "Printing Now..."
             print "---------------------------------------------"
 
         except:
@@ -80,6 +80,8 @@ if __name__=="__main__":
 
         if select_df is not None:
             print select_df
+            print "Number of rows:"
+            print len(select_df)
 
 
 
