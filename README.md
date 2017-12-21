@@ -14,7 +14,8 @@ sudo pip install pandas
 
 To run script:
 
-Run preprocessing first: 
+Run preprocessing first:
+(We DID NOT load data to main memory, we preprocessing by converting CSV files to Feather and building index. The query program will read preprocessed data from disk, not main memory!)
 ```
 python2 storeAsFeather.py
 ```
